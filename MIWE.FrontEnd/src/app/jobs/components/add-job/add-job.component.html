@@ -1,0 +1,51 @@
+<mat-card *ngIf="job$ | async as job; else loading" class="miwe-halfSize miwe-centered miwe-marginTop5perc">
+  <mat-card-header>
+    <mat-card-title *ngIf="!isEdit">Add job</mat-card-title>
+    <mat-card-title *ngIf="isEdit">Edit job</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="miwe-container miwe-container__center">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput required [(ngModel)]="job.name">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Description</mat-label>
+        <input matInput [(ngModel)]="job.description">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Required OS</mat-label>
+        <mat-select [(value)]="selectedOS">
+          <mat-option value=0>Any</mat-option>
+          <mat-option value=1>Windows</mat-option>
+          <mat-option value=2>Linux</mat-option>
+          <mat-option value=3>MAC</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Type</mat-label>
+        <mat-select [(value)]="selectedType">
+          <mat-option value=0>Crawler</mat-option>
+          <mat-option value=1>Data Processor</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-label style="text-align: center;">Dll/ Zip</mat-label>
+      <br />
+      <ngx-file-drop dropZoneLabel="Drop files here" (onFileDrop)="dropped($event)" [accept]="acceptedFileExtensions"
+        [multiple]="false" required>
+        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+          <span (click)="openFileSelector()">Drag & Drop / Browse Files</span>
+        </ng-template>
+      </ngx-file-drop>
+      <div *ngIf="!!this.dllFile">
+        <mat-icon style="transform: scale(0.75);">file_copy</mat-icon>
+        <span>{{this.dllFile.name}}</span>
+      </div>
+      <div class="bo-container__actionBtns">
+        <button mat-raised-button color="primary" (click)="save(job)">Save</button>
+        <button mat-raised-button (click)="cancel()">Cancel</button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+<ng-template #loading>Loading User Data...</ng-template>

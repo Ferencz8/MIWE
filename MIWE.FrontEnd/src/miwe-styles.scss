@@ -1,0 +1,44 @@
+.miwe-container {
+  display: flex;
+  flex-direction: column;
+
+  &__center {
+    align-items: justify-content;
+  }
+
+  // > .mat-form-field {
+  //   width: 50%;
+  // }
+  // > .mat-raised-button {
+  //   width: 50%;
+  // }
+  &__actionBtns > button {
+    width: 50%;
+  }
+}
+
+.miwe-halfSize {
+  width: 50%;
+}
+
+.miwe-fullSize {
+  width: 100%;
+}
+
+.miwe-centered {
+  margin: auto;
+}
+
+.miwe-margin10perc {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.miwe-marginTop5perc {
+  margin-top: 5%;
+}
+
+.miwe-card-header-cols{
+  display: flex;
+  justify-content: space-between;
+}

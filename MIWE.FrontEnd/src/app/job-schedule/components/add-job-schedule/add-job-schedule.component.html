@@ -1,0 +1,26 @@
+<mat-card *ngIf="jobSchedules$ | async as jobScheduled; else loading"
+  class="miwe-halfSize miwe-centered miwe-marginTop5perc">
+  <mat-card-header>
+    <mat-card-title *ngIf="!isEdit">Add</mat-card-title>
+    <mat-card-title *ngIf="isEdit">Edit job</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="miwe-container miwe-container__center">
+      <mat-form-field>
+        <mat-label>Cron Scheduling</mat-label>
+        <input matInput required [(ngModel)]="jobScheduled.scheduling">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="addJobPicker()">Add Job Picker</button>
+      <div>
+        <ng-template #containerJobPicker>
+
+        </ng-template>
+      </div>
+      <div class="miwe-container__actionBtns">
+        <button mat-raised-button color="primary" [disabled]="components.length == 0 || !jobScheduled.scheduling" (click)="save(jobScheduled)">Save</button>
+        <button mat-raised-button (click)="cancel()">Cancel</button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+<ng-template #loading>Loading User Data...</ng-template>

@@ -1,0 +1,7 @@
+﻿For Migrations
+add-migration <migration name>	Add <migration name>	Creates a migration by adding a migration snapshot.
+Remove-migration	Remove	Removes the last migration snapshot.
+Update-database	Update	Updates the database schema based on the last migration snapshot.
+Script-migration	Script	Generates a SQL script using all the migration snapshots.
+
+https://www.entityframeworktutorial.net/efcore/entity-framework-core-migration.aspx

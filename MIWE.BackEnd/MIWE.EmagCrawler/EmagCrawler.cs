@@ -1,0 +1,122 @@
+﻿using MIWE.Core;
+using MIWE.Core.Interfaces;
+using OpenQA.Selenium.Chrome;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace MIWE.EmagCrawler
+{
+    public class EmagCrawler : ICrawl
+    {
+
+        private bool _disposed = false;
+        private ChromeDriver _driver;
+        private List<EmagProduct> EmagProducts { get; set; }
+        public CancellationToken CancellationToken { get; set; }
+
+        private IEnumerable<string> _productLinks;
+        public EmagCrawler()
+        {
+            EmagProducts = new List<EmagProduct>();
+        }
+
+        private void Start()
+        {
+            using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory))
+            {
+
+                _driver.Navigate().GoToUrl("https://www.emag.ro/televizoare/c?ref=hp_menu_quick-nav_190_1&type=category");
+
+                Thread.Sleep(2000);
+
+                _productLinks = _driver.FindElementsByXPath("//div[@id='card_grid']//a[contains(@class,'product-title')]")
+                                       .Where(n => !string.IsNullOrEmpty(n.GetAttribute("href")))
+                                       .Select(n => n.GetAttribute("href"))
+                                       .ToList();
+
+                foreach (var link in _productLinks)
+                {
+                    try
+                    {
+                        var product = ParseLink(link);
+                        EmagProducts.Add(product);
+                    }
+                    catch(Exception ex)
+                    {
+                        //TODO:: log exception
+                    }
+                }
+            }
+        }
+
+        public bool ScrapeData(CancellationToken? cancellationToken = null)
+        {
+            try
+            {
+                if (cancellationToken.HasValue)
+                    CancellationToken = cancellationToken.Value;
+
+                Start();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public EmagProduct ParseLink(string link)
+        {
+            if (CancellationToken != null && CancellationToken.IsCancellationRequested)
+            {
+                CancellationToken.ThrowIfCancellationRequested();
+            }
+
+            _driver.Navigate().GoToUrl(link);
+
+            string name = _driver.FindElementByXPath("//h1[@class='page-title']")?.Text;
+
+            string price = _driver.FindElementByXPath("//form[@class='main-product-form']//p[@class='product-new-price']")?.Text;
+
+            return new EmagProduct()
+            {
+                Name = name,
+                Price = price
+            };
+        }
+
+        public IEnumerable<string> GetProductLinks()
+        {
+            return _productLinks;
+        }
+
+        public IEnumerable<IProductData> GetData()
+        {
+            return EmagProducts;
+        }
+        public void Dispose() => Dispose(true);
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if(_driver != null)
+                {
+                    _driver.Close();
+                    _driver.Quit();
+                    _driver.Dispose();
+                }                
+            }
+
+            _disposed = true;
+        }
+    }
+}

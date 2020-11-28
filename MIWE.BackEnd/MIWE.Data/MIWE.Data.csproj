@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200928121323_CreateWorkerDb.cs" />
+    <Compile Remove="Migrations\20200928121323_CreateWorkerDb.Designer.cs" />
+    <Compile Remove="Migrations\20200930133441_JobsSchemaChanged.cs" />
+    <Compile Remove="Migrations\20200930133441_JobsSchemaChanged.Designer.cs" />
+    <Compile Remove="Migrations\20200930134156_JobsSchemaChanged2.cs" />
+    <Compile Remove="Migrations\20200930134156_JobsSchemaChanged2.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.123" />
+  </ItemGroup>
+
+</Project>
