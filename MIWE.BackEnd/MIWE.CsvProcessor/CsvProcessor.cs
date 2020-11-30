@@ -10,17 +10,23 @@ namespace MIWE.CsvProcessor
     public class CsvProcessor : IProcess
     {
         //TODO::specify as input the path   
-        public bool ProcessData(string merchantName, IEnumerable<IProductData> products)
+        public bool ProcessData(string merchantName, IEnumerable<IProductData> products, Action<MemoryStream, string> saveAction = null)
         {
             try
             {
                 string path = Path.Combine(Directory.GetCurrentDirectory(), merchantName);
-                using (var writer = new StreamWriter($"{path}.csv"))
+                using (var memoryStream = new MemoryStream())
+                //using (var writer = new StreamWriter($"{path}.csv"))
+                using (var writer = new StreamWriter(memoryStream))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
                     csv.WriteRecords(products);
-                }
 
+                    if (saveAction != null)
+                    {
+                        saveAction.Invoke(memoryStream, ".csv");
+                    }
+                }
                 return true;
             }
             catch (Exception ex)

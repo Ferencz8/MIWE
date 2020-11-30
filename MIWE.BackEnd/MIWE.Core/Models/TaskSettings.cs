@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace MIWE.Core
+namespace MIWE.Core.Models
 {
     //https://stackoverflow.com/questions/49813628/run-a-background-task-from-a-controller-action-in-asp-net-core-2
     public class TaskSettings

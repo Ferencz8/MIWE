@@ -79,7 +79,7 @@ namespace MIWE.EmagCrawler
 
             string name = _driver.FindElementByXPath("//h1[@class='page-title']")?.Text;
 
-            string price = _driver.FindElementByXPath("//form[@class='main-product-form']//p[@class='product-new-price']")?.Text;
+            string price = _driver.FindElementByXPath("//form[@class='main-product-form']//p[contains(@class,'product-new-price')]")?.Text;
 
             return new EmagProduct()
             {

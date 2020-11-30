@@ -8,6 +8,8 @@ namespace MIWE.Common
     {
         public const string PluginCrawlerDir = "CrawlerPlugins";
 
-        public const string PluginProcessorDir = "ProcessorPlugins";
+        public const string ProcessedDataFolder = "ProcessedDataFolder";
+
+        public const string PluginFolder = "PluginFolder";
     }
 }

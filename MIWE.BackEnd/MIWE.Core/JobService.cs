@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MIWE.Core.Interfaces;
 using MIWE.Core.Models;
@@ -26,8 +27,10 @@ namespace MIWE.Core
         private IJobRepository _jobRepository;
         private IInstanceRepository _intanceRepository;
         private IJobSessionRepository _jobSessionRepository;
+        private IServiceScopeFactory _serviceScopeFactory;
         public JobService(IJobExecuter jobExecuter, TaskSettings taskSettings, ILogger<JobService> logger,
-            IJobRepository jobRepository, IInstanceRepository instanceRepository, IJobSessionRepository jobSessionRepository)
+            IJobRepository jobRepository, IInstanceRepository instanceRepository, IJobSessionRepository jobSessionRepository,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _jobExecuter = jobExecuter;
             _taskSettings = taskSettings;
@@ -35,6 +38,7 @@ namespace MIWE.Core
             _jobRepository = jobRepository;
             _intanceRepository = instanceRepository;
             _jobSessionRepository = jobSessionRepository;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public async Task<Guid> Add(Job job)
@@ -80,13 +84,24 @@ namespace MIWE.Core
 
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
-                _jobExecuter.RunJob(instanceId.Value, jobId, crawlPath, token);
+                try
+                {
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var jobExecuterService = scope.ServiceProvider.GetRequiredService<IJobExecuter>();
+                        await jobExecuterService.RunJob(instanceId.Value, jobId, crawlPath, token);
 
-                tokenSource.Dispose();
+                        tokenSource.Dispose();
 
-                _taskSettings.Tasks.TryRemove(jobId, out tokenSource);
+                        _taskSettings.Tasks.TryRemove(jobId, out tokenSource);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError($"Failed to run job with id: {jobId}", ex);
+                }
 
             }, token);
 

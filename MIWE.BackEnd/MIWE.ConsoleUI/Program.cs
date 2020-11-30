@@ -117,13 +117,13 @@ namespace MIWE
 
         }
 
-        private static void RunJobs(IInstanceService instanceService, CancellationToken token)
+        private async static Task RunJobs(IInstanceService instanceService, CancellationToken token)
         {
             
             IJobExecuter jobExecuter = _serviceProvider.GetService<IJobExecuter>();
             instanceService.IsCPUThresholdReached();
             //jobExecuter.RunJob("");
-            var allJobsRan = jobExecuter.RunAllJobs();
+            var allJobsRan = await jobExecuter.RunAllJobs();
             if (!allJobsRan)
             {
                 string ip = instanceService.GetAvailableInstanceIP();

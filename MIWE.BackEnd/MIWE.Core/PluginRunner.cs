@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using MIWE.Core.Models;
 
 namespace MIWE.Core
 {
@@ -56,7 +57,7 @@ namespace MIWE.Core
 
                 // This assumes the implementation of IPlugin has a parameterless constructor
                 ICrawl plugin = (ICrawl)Activator.CreateInstance(pluginType);
-                                
+
                 bool result = plugin.ScrapeData(cancellationToken);
                 return result;
             }
@@ -84,24 +85,25 @@ namespace MIWE.Core
             return crawlPath;
         }
 
-        public bool Run(string crawlerPluginPath, string processorPluginPath = null, string merchantName = null)
+        //public bool Run(string crawlerPluginPath, string processorPluginPath = null, string merchantName = null)
+        public bool Run(PluginRunningParameters pluginRunningParameters)
         {
             try
             {
-                ICrawl crawlPlugin = CreateInstanceOfPlugin<ICrawl>(crawlerPluginPath);
+                ICrawl crawlPlugin = CreateInstanceOfPlugin<ICrawl>(pluginRunningParameters.CrawlerPluginPath);
 
                 crawlPlugin.ScrapeData();
                 bool result = false;
-                if (!string.IsNullOrEmpty(processorPluginPath) && !string.IsNullOrEmpty(merchantName))
+                if (pluginRunningParameters.IsProcessorAssigned())
                 {
                     var productsData = crawlPlugin.GetData();
-                    IProcess processPlugin = CreateInstanceOfPlugin<IProcess>(processorPluginPath);
-                    result = processPlugin.ProcessData(merchantName, productsData);
+                    IProcess processPlugin = CreateInstanceOfPlugin<IProcess>(pluginRunningParameters.ProcessorPluginPath);
+                    result = processPlugin.ProcessData(pluginRunningParameters.MerchantName, productsData, pluginRunningParameters.ProcessorSaveAction);
                 }
 
                 return result;
             }
-             catch (Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, ex, "Plugin run failed");
                 return false;

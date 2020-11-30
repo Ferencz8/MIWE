@@ -81,7 +81,7 @@ namespace MIWE.API.Controllers
         {
         }
 
-        [HttpGet("[action]/{scheduledJobId}")]
+        [HttpGet("[action]/{jobId}")]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
         [ProducesErrorResponseType(typeof(StatusCodeResult))]
         public IActionResult Run(Guid jobId)

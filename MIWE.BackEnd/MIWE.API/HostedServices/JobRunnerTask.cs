@@ -27,72 +27,95 @@ namespace MIWE.API.HostedServices
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("JobRunnerTask started");
-            //while (true)
+            while (true)
             {
                 try
                 {
-                    //_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromHours(1));
-                    await DoWork();
+                    _logger.LogInformation("JobRunnerTask started");
+                    await DoWork(cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to run updater job with ex{ex}");
+                    _logger.LogError($"Failed to run updater job with ex: {ex}");
                 }
                 finally
                 {
                     Thread.Sleep(TimeSpan.FromMinutes(1));
+                    _logger.LogInformation("JobRunnerTask finished");
                 }
             }
-            _logger.LogInformation("JobRunnerTask finished");
         }
 
-        private async Task DoWork()
+        private async Task DoWork(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Timed Background Service is working.");
+            _logger.LogInformation("Timed Background Service started.");
 
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            Task jobRunnerTask = Task.Factory.StartNew(async () =>
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                using (var scope = _serviceScopeFactory.CreateScope())
+                var scopedServices = scope.ServiceProvider;
+                var jobExecuter = scopedServices.GetRequiredService<IJobExecuter>();
+                var instanceService = scopedServices.GetRequiredService<IInstanceService>();
+
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    var scopedServices = scope.ServiceProvider;
-                    var jobExecuter = scopedServices.GetRequiredService<IJobExecuter>();
-                    var instanceService = scopedServices.GetRequiredService<IInstanceService>();
-                    
-                    while (!token.IsCancellationRequested)
-                    {
-                        await RunJobs(jobExecuter, instanceService, token);
+                    await RunJobs(jobExecuter, instanceService, cancellationToken);
 
-                        Thread.Sleep(TimeSpan.FromMinutes(1));
-                    }
-
-                    if (token.IsCancellationRequested)
-                    {
-                        token.ThrowIfCancellationRequested();
-                    }
+                    Thread.Sleep(TimeSpan.FromMinutes(1));
                 }
 
-            }, token);
-
-            try
-            {
-                jobRunnerTask.Wait();
-            }
-            catch (OperationCanceledException operationCanceledEx)
-            {
-                //log
-            }
-            catch (Exception genericException)
-            {
-                //log
-            }
-            finally
-            {
-                tokenSource.Dispose();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             }
         }
+
+        //private async Task DoWork()
+        //{
+        //    _logger.LogInformation("Timed Background Service is working.");
+
+        //    var tokenSource = new CancellationTokenSource();
+        //    var token = tokenSource.Token;
+        //    Task jobRunnerTask = Task.Factory.StartNew(async () =>
+        //    {
+        //        using (var scope = _serviceScopeFactory.CreateScope())
+        //        {
+        //            var scopedServices = scope.ServiceProvider;
+        //            var jobExecuter = scopedServices.GetRequiredService<IJobExecuter>();
+        //            var instanceService = scopedServices.GetRequiredService<IInstanceService>();
+
+        //            while (!token.IsCancellationRequested)
+        //            {
+        //                await RunJobs(jobExecuter, instanceService, token);
+
+        //                Thread.Sleep(TimeSpan.FromMinutes(1));
+        //            }
+
+        //            if (token.IsCancellationRequested)
+        //            {
+        //                token.ThrowIfCancellationRequested();
+        //            }
+        //        }
+
+        //    }, token);
+
+        //    try
+        //    {
+        //        jobRunnerTask.Wait();
+        //    }
+        //    catch (OperationCanceledException operationCanceledEx)
+        //    {
+        //        //log
+        //    }
+        //    catch (Exception genericException)
+        //    {
+        //        //log
+        //    }
+        //    finally
+        //    {
+        //        tokenSource.Dispose();
+        //    }
+        //}
         private async Task RunJobs(IJobExecuter jobExecuter, IInstanceService instanceService, CancellationToken token)
         {
             var allJobsRan = await jobExecuter.RunAllJobSchedules();

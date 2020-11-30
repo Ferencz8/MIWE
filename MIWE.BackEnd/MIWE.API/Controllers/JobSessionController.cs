@@ -28,7 +28,6 @@ namespace MIWE.API.Controllers
         [HttpGet]
         public IEnumerable<JobSessionDto> Get()
         {
-            //return _jobSessionRepository.GetAll().OrderByDescending(n => n.DateStart);
             return _jobSessionRepository.GetJobSessionDtos();
         }
 

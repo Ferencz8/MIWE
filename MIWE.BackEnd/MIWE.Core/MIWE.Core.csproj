@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MIWE.Common\MIWE.Common.csproj" />
     <ProjectReference Include="..\MIWE.Data\MIWE.Data.csproj" />
   </ItemGroup>
 

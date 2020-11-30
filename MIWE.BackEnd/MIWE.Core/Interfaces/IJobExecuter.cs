@@ -12,7 +12,7 @@ namespace MIWE.Core.Interfaces
 
         IEnumerable<Job> GetAllJobs();
 
-        bool RunAllJobs();
+        Task<bool> RunAllJobs();
 
         Task<bool> RunAllJobSchedules();
 

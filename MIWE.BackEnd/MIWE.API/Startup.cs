@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using MIWE.Data;
 using MIWE.Data.Services.Interfaces;
 using MIWE.API.HostedServices;
+using MIWE.Core.Models;
 
 namespace MIWE.API
 {
@@ -59,7 +60,7 @@ namespace MIWE.API
             services.AddScoped<IInstanceRepository, InstanceRepository>();
             services.AddSingleton<TaskSettings, TaskSettings>();
 
-            //services.AddHostedService<JobRunnerTask>();
+            services.AddHostedService<JobRunnerTask>();
 
             Initialize(services);
         }

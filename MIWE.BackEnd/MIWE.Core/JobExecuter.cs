@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Quartz;
+using MIWE.Core.Models;
+using Microsoft.Extensions.Configuration;
+using MIWE.Common;
 
 namespace MIWE.Core
 {
@@ -27,9 +30,11 @@ namespace MIWE.Core
         private IJobSessionRepository _jobSessionRepository;
         private IJobScheduleRepository _jobScheduleRepository;
         private ILogger<JobExecuter> _logger;
+        private IConfiguration _configuration;
 
         public JobExecuter(IInstanceService instanceService, IPluginRunner pluginRunner, IJobRepository jobRepository,
-            IJobSessionRepository jobSessionRepository, IJobScheduleRepository jobScheduleRepository, ILogger<JobExecuter> logger)
+            IJobSessionRepository jobSessionRepository, IJobScheduleRepository jobScheduleRepository, ILogger<JobExecuter> logger,
+            IConfiguration configuration)
         {
             _instanceService = instanceService;
             _pluginRunner = pluginRunner;
@@ -37,6 +42,7 @@ namespace MIWE.Core
             _jobSessionRepository = jobSessionRepository;
             _jobScheduleRepository = jobScheduleRepository;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public IEnumerable<Job> GetAllJobs()
@@ -78,7 +84,7 @@ namespace MIWE.Core
             return true;
         }
 
-        public bool RunAllJobs()
+        public async Task<bool> RunAllJobs()
         {
             var jobsToBeRun = GetAllJobs();
 
@@ -96,7 +102,7 @@ namespace MIWE.Core
                 else
                 {
                     //separate tasks TODO
-                    RunJob(instanceId, job.Id, job.PluginPath);
+                    await RunJob(instanceId, job.Id, job.PluginPath);
                 }
             }
 
@@ -122,7 +128,7 @@ namespace MIWE.Core
 
             //string dirPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "plugins");
             //pluginRunner.Run(Path.Combine(dirPath, "EmagCrawler\\netcoreapp3.1\\DemoPlugin.EmagCrawler.dll"));
-            string dirPath = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
+            string dirPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.PluginFolder).Value);
             bool result = _pluginRunner.Run(Path.Combine(dirPath, crawlPath), cancellationToken);
 
             //update in db completed
@@ -152,7 +158,7 @@ namespace MIWE.Core
                     .ToList();//,-> one after another ;-> paralel
 
                 //start sessions
-                var mainJobSessionId = await AddJobSession(instanceId, jobSchedule.Id);
+                var jobSessionId = await AddJobSession(instanceId, jobSchedule.Id);
                 foreach (var jobId in jobIds)
                 {
                     var job = await _jobRepository.GetById(jobId);
@@ -162,27 +168,51 @@ namespace MIWE.Core
                 //run the plugins
                 var mainJob = await _jobRepository.GetById(jobSchedule.MainJob);
 
-                bool result = _pluginRunner.Run(
-                    GetCrawlPath(mainJob.PluginPath),
-                    GetCrawlPath(jobs.FirstOrDefault().PluginPath),
-                    jobs.FirstOrDefault().Name);
+                bool result = _pluginRunner.Run(new PluginRunningParameters()
+                {
+                    MerchantName = jobs.FirstOrDefault().Name,
+                    CrawlerPluginPath = GetCrawlPath(mainJob.PluginPath),
+                    ProcessorPluginPath = GetCrawlPath(jobs.FirstOrDefault().PluginPath),
+                    ProcessorSaveAction = GetSaveProcessedActionData(jobSessionId)
+                });
 
                 //finish sessions
-                await MarkJobSessionsAsEnded(mainJobSessionId, result);
+                await MarkJobSessionsAsEnded(jobSessionId, result);
 
                 await MarkScheduledJobAsEnded(mainJob);
 
                 //TODO:: add support for multiple data processors
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Failed to run scheduled job with Id: {jobScheduleId}", ex);
             }
         }
 
+        private Action<MemoryStream, string> GetSaveProcessedActionData(Guid jobSessionId)
+        {
+            return async (memoryStream, extension) =>
+            {
+                string path = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.ProcessedDataFolder).Value);
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                string filePath = Path.Combine(path, $"{jobSessionId}{extension}");
+                using (var stream = new FileStream(filePath, FileMode.OpenOrCreate))
+                {
+                    memoryStream.CopyTo(stream);
+                }
+
+                var jobSessionEntity = await _jobSessionRepository.GetById(jobSessionId);
+                jobSessionEntity.ResultPath = filePath;
+                await _jobSessionRepository.Update(jobSessionEntity);
+            };
+        }
+
         private string GetCrawlPath(string pluginName)
         {
-            string dirPath = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
+            string dirPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.PluginFolder).Value);
             string pluginPath = Path.Combine(dirPath, pluginName);
             return pluginPath;
         }
