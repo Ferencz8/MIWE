@@ -118,32 +118,36 @@ namespace MIWE.API.HostedServices
         //}
         private async Task RunJobs(IJobExecuter jobExecuter, IInstanceService instanceService, CancellationToken token)
         {
-            var allJobsRan = await jobExecuter.RunAllJobSchedules();
+            var allJobsRan = await jobExecuter.RunAllJobSchedules(token);
             if (!allJobsRan)
             {
-                string ip = instanceService.GetAvailableInstanceIP();
-                if (string.IsNullOrEmpty(ip))
-                    return;
+                var jobSchedules = jobExecuter.GetAllJobsScheduled();
 
-                var jobs = jobExecuter.GetAllJobs();
                 //call instance to run a job
-
-                try
+                for (int i = 0; i < jobSchedules.Count(); i++)
                 {
-                    GrpcClientFactory.AllowUnencryptedHttp2 = true;
-                    var channel = GrpcChannel.ForAddress($"https://localhost:8009");
+                    string ip = string.Empty;
+                    try
+                    {
+                        ip = instanceService.GetAvailableInstanceIP();
+                        if (string.IsNullOrEmpty(ip))
+                            return;
 
-                    var jobReceiverService = channel.CreateGrpcService<IJobReceiver>();
-                    jobReceiverService.ReceiveJob(jobs.ElementAt(0));
-                }
-                catch (Exception ex)
-                {
-                    throw;
+                        GrpcClientFactory.AllowUnencryptedHttp2 = true;
+                        var channel = GrpcChannel.ForAddress($"https://localhost:8009");//ip
+
+                        var jobReceiverService = channel.CreateGrpcService<IJobReceiver>();
+                        jobReceiverService.ReceiveJobSchedule(jobSchedules.ElementAt(i));
+
+                        Thread.Sleep(TimeSpan.FromSeconds(10));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Failed to run jobs for ip {ip} and job schedule id: {jobSchedules.ElementAt(i)?.Id}", ex);
+                    }
                 }
             }
         }
-
-
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

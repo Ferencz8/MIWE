@@ -9,10 +9,12 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MIWE.API.HostedServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MIWE.API
 {
-    
+
     //https://anthonygiretti.com/2020/03/29/grpc-asp-net-core-3-1-whats-grpc-web-how-to-create-a-grpc-web-service/
     //https://stackoverflow.com/questions/56890644/grpc-and-mvc-in-same-asp-net-core-3-0-application
 
@@ -55,6 +57,10 @@ namespace MIWE.API
                      });
                  });
              })
+            .ConfigureServices(services =>
+            {
+                services.AddHostedService<JobRunnerTask>();
+            })
              .UseStartup<Startup>();
     }
 }

@@ -123,11 +123,11 @@ namespace MIWE
             IJobExecuter jobExecuter = _serviceProvider.GetService<IJobExecuter>();
             instanceService.IsCPUThresholdReached();
             //jobExecuter.RunJob("");
-            var allJobsRan = await jobExecuter.RunAllJobs();
+            var allJobsRan = await jobExecuter.RunAllJobSchedules(token);
             if (!allJobsRan)
             {
                 string ip = instanceService.GetAvailableInstanceIP();
-                var jobs = jobExecuter.GetAllJobs();
+                var jobs = jobExecuter.GetAllJobsScheduled();
                 //call instance to run a job
             }
         }

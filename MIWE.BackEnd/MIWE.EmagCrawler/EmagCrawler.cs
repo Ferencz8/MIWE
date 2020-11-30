@@ -1,5 +1,6 @@
 ﻿using MIWE.Core;
 using MIWE.Core.Interfaces;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,13 @@ namespace MIWE.EmagCrawler
 
         private void Start()
         {
-            using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory))
+            ChromeOptions options = new ChromeOptions();
+            Proxy proxy= new Proxy();
+            proxy.SslProxy = "79.115.245.227:8080";
+            proxy.Kind = ProxyKind.Manual;
+            options.Proxy = proxy;
+            options.AddArgument("ignore-certificate-errors");
+            using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options))
             {
 
                 _driver.Navigate().GoToUrl("https://www.emag.ro/televizoare/c?ref=hp_menu_quick-nav_190_1&type=category");

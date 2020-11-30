@@ -85,14 +85,13 @@ namespace MIWE.Core
             return crawlPath;
         }
 
-        //public bool Run(string crawlerPluginPath, string processorPluginPath = null, string merchantName = null)
-        public bool Run(PluginRunningParameters pluginRunningParameters)
+        public bool Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken)
         {
             try
             {
                 ICrawl crawlPlugin = CreateInstanceOfPlugin<ICrawl>(pluginRunningParameters.CrawlerPluginPath);
 
-                crawlPlugin.ScrapeData();
+                crawlPlugin.ScrapeData(cancellationToken);
                 bool result = false;
                 if (pluginRunningParameters.IsProcessorAssigned())
                 {
@@ -149,7 +148,6 @@ namespace MIWE.Core
                 var loaders = new List<PluginLoader>();
 
                 // create plugin loaders
-                //var pluginsDir = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "plugins");
                 var pluginsDir = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
                 foreach (var dir in DirSearch(pluginsDir))
                 {
@@ -174,7 +172,7 @@ namespace MIWE.Core
                         ICrawl plugin = (ICrawl)Activator.CreateInstance(pluginType);
 
                         Console.WriteLine($"Created plugin instance.");
-                        //plugin.GetData();
+                       
                         plugin.ScrapeData();
                     }
                 }

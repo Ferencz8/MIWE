@@ -31,10 +31,11 @@ namespace MIWE.Core
         private IJobScheduleRepository _jobScheduleRepository;
         private ILogger<JobExecuter> _logger;
         private IConfiguration _configuration;
+        private IWorkloadAnalyzer _workloadAnalyzer;
 
         public JobExecuter(IInstanceService instanceService, IPluginRunner pluginRunner, IJobRepository jobRepository,
             IJobSessionRepository jobSessionRepository, IJobScheduleRepository jobScheduleRepository, ILogger<JobExecuter> logger,
-            IConfiguration configuration)
+            IConfiguration configuration, IWorkloadAnalyzer workloadAnalyzer)
         {
             _instanceService = instanceService;
             _pluginRunner = pluginRunner;
@@ -43,31 +44,25 @@ namespace MIWE.Core
             _jobScheduleRepository = jobScheduleRepository;
             _logger = logger;
             _configuration = configuration;
+            _workloadAnalyzer = workloadAnalyzer;
         }
 
-        public IEnumerable<Job> GetAllJobs()
+        public IEnumerable<JobSchedule> GetAllJobsScheduled()
         {
-            return _jobRepository.GetAll(n => !n.IsRunning)
+            var jobsToBeRun = _jobScheduleRepository.GetJobsScheduledToRun();
+
+            var awaitingJobs = _workloadAnalyzer.ScanJobsAwaitingToBeRun(jobsToBeRun);
+            return _jobScheduleRepository.GetAll(n => awaitingJobs.Contains(n.Id))
                 .ToList();
         }
 
-        public async Task<bool> RunAllJobSchedules()
+        public async Task<bool> RunAllJobSchedules(CancellationToken? cancellationToken)
         {
-            var jobsToBeRun = _jobScheduleRepository.GetAll(n => !n.IsRunning).ToList();
-
             int instanceId = _instanceService.GetCurrentInstanceId();
+            var awaitingJobs = GetAllJobsScheduled();
 
-            for (int i = 0; i < jobsToBeRun.Count(); i++)
+            foreach (JobSchedule jobScheduled in awaitingJobs)
             {
-                var job = jobsToBeRun.ElementAt(i);
-                CronExpression expression = new CronExpression(job.Scheduling);
-                expression.TimeZone = TimeZoneInfo.Utc;
-                DateTimeOffset? nextFireUTCTime = expression.GetNextValidTimeAfter(DateTime.UtcNow);
-                if (DateTime.Compare(DateTime.UtcNow, nextFireUTCTime.Value.UtcDateTime) < 0)
-                {
-                    continue; //skip
-                }
-
                 if (_instanceService.IsCPUThresholdReached())
                 {
                     return false;
@@ -75,34 +70,7 @@ namespace MIWE.Core
                 else
                 {
                     //separate tasks TODO
-                    //RunJob(instanceId, job.Id, job.PluginPath);
-                    await RunScheduledJob(instanceId, job.Id);
-                }
-            }
-
-            //finished alone all jobs
-            return true;
-        }
-
-        public async Task<bool> RunAllJobs()
-        {
-            var jobsToBeRun = GetAllJobs();
-
-            int instanceId = _instanceService.GetCurrentInstanceId();
-
-            for (int i = 0; i < jobsToBeRun.Count(); i++)
-            {
-                var job = jobsToBeRun.ElementAt(i);
-
-
-                if (_instanceService.IsCPUThresholdReached())
-                {
-                    return false;
-                }
-                else
-                {
-                    //separate tasks TODO
-                    await RunJob(instanceId, job.Id, job.PluginPath);
+                    await RunScheduledJob(instanceId, jobScheduled.Id, cancellationToken);
                 }
             }
 
@@ -142,7 +110,7 @@ namespace MIWE.Core
             await _jobRepository.Update(ranJob);
         }
 
-        public async Task RunScheduledJob(int instanceId, Guid jobScheduleId)
+        public async Task RunScheduledJob(int instanceId, Guid jobScheduleId, CancellationToken? cancellationToken = null)
         {
             try
             {
@@ -174,7 +142,7 @@ namespace MIWE.Core
                     CrawlerPluginPath = GetCrawlPath(mainJob.PluginPath),
                     ProcessorPluginPath = GetCrawlPath(jobs.FirstOrDefault().PluginPath),
                     ProcessorSaveAction = GetSaveProcessedActionData(jobSessionId)
-                });
+                }, cancellationToken);
 
                 //finish sessions
                 await MarkJobSessionsAsEnded(jobSessionId, result);
@@ -206,6 +174,7 @@ namespace MIWE.Core
 
                 var jobSessionEntity = await _jobSessionRepository.GetById(jobSessionId);
                 jobSessionEntity.ResultPath = filePath;
+                jobSessionEntity.ResultContentType = "text/csv";
                 await _jobSessionRepository.Update(jobSessionEntity);
             };
         }

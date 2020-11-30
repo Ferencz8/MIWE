@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\Feri\source\repos\MIWE\MIWE.API\plugins\EmagCrawler\</OutputPath>
+    <OutputPath>D:\Programming\GitHub\MIWE\MIWE.BackEnd\MIWE.API\plugins\EmagCrawler</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

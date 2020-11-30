@@ -1,4 +1,5 @@
 ﻿using MIWE.Data;
+using MIWE.Data.Entities;
 using ProtoBuf.Grpc;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,7 @@ namespace MIWE.Core.Interfaces
     {
 
         void ReceiveJob(Job scheduledJob, CallContext callContext = default);
+
+        void ReceiveJobSchedule(JobSchedule jobSchedule, CallContext callContext = default);
     }
 }

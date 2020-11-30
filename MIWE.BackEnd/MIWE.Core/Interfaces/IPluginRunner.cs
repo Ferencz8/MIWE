@@ -12,6 +12,6 @@ namespace MIWE.Core.Interfaces
 
         //bool Run(string crawlerPluginPath, string processorPluginPath = null, string merchantName = null);
 
-        bool Run(PluginRunningParameters pluginRunningParameters);
+        bool Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken);
     }
 }

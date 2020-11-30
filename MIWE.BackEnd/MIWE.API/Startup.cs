@@ -53,6 +53,7 @@ namespace MIWE.API
             services.AddScoped<IJobExecuter, JobExecuter>();
             services.AddScoped<IInstanceService, InstanceService>();
             services.AddScoped<IPluginRunner, PluginRunner>();
+            services.AddScoped<IWorkloadAnalyzer, WorkloadAnalyzer>();
 
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IJobSessionRepository, JobSessionRepository>();
@@ -60,7 +61,7 @@ namespace MIWE.API
             services.AddScoped<IInstanceRepository, InstanceRepository>();
             services.AddSingleton<TaskSettings, TaskSettings>();
 
-            services.AddHostedService<JobRunnerTask>();
+            //services.AddHostedService<JobRunnerTask>();
 
             Initialize(services);
         }

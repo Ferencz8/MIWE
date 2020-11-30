@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using MIWE.Data.Services.Interfaces;
+using System.Threading;
 
 namespace MIWE.Data.Services
 {
@@ -30,7 +31,16 @@ namespace MIWE.Data.Services
 
         public string GetAvailableInstanceIP()
         {
-            return _instanceRepository.GetAvailableInstanceIP();
+            string availableIP = string.Empty;
+            int index = 1;
+            do
+            {
+                availableIP = _instanceRepository.GetAvailableInstanceIP();
+                Thread.Sleep(TimeSpan.FromSeconds(10 * index));
+                index++;
+
+            } while (string.IsNullOrEmpty(availableIP) && index < 10);
+            return availableIP;
         }
 
         public bool IsMasterRegistered()

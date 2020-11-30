@@ -1,4 +1,5 @@
 ﻿using MIWE.Data;
+using MIWE.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,12 +11,12 @@ namespace MIWE.Core.Interfaces
     public interface IJobExecuter
     {
 
-        IEnumerable<Job> GetAllJobs();
+        IEnumerable<JobSchedule> GetAllJobsScheduled();
 
-        Task<bool> RunAllJobs();
-
-        Task<bool> RunAllJobSchedules();
+        Task<bool> RunAllJobSchedules(CancellationToken? cancellationToken);
 
         Task RunJob(int instanceId, Guid jobId, string crawlPath, CancellationToken? cancellationToken = null);
+
+        Task RunScheduledJob(int instanceId, Guid jobScheduleId, CancellationToken? cancellationToken = null);
     }
 }
