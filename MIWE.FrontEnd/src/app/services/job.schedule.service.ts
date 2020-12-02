@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppSettings } from '../shared/app.settings';
 import { JobSchedule } from '../models/job.schedule';
+import { JobSchedulePipeline } from '../models/job.schedule.pipeline';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ export class JobScheduleService {
 
   constructor(private httpClient: HttpClient) {}
 
-  public getAll(): Observable<JobSchedule[]> {
-    return this.httpClient.get<JobSchedule[]>(`${AppSettings.API_ENDPOINT}/JobSchedule`);
+  public getAll(): Observable<JobSchedulePipeline[]> {
+    return this.httpClient.get<JobSchedulePipeline[]>(`${AppSettings.API_ENDPOINT}/JobSchedule`);
   }
 
   public get(id): Observable<JobSchedule> {

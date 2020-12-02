@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MIWE.Data.Dtos;
 using MIWE.Data.Entities;
 using MIWE.Data.Services.Interfaces;
 
@@ -25,9 +26,9 @@ namespace MIWE.API.Controllers
 
         // GET: api/<JobScheduleController>
         [HttpGet]
-        public IEnumerable<JobSchedule> Get()
+        public IEnumerable<JobSchedulePipelineDto> Get()
         {
-            return _jobScheduleRepository.GetAll().ToList();
+            return _jobScheduleRepository.GetJobSchedulesWithPipeline().ToList();
         }
 
         // GET api/<JobScheduleController>/5

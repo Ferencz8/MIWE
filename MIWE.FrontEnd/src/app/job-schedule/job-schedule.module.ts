@@ -6,12 +6,14 @@ import { SharedMaterialModule } from '../shared.module';
 import { SnackbarService } from '../shared/snackbar.service';
 import { AddJobScheduleComponent } from './components/add-job-schedule/add-job-schedule.component';
 import { JobPickerComponent } from './components/job-picker/job-picker.component';
+import { JobScheduleListComponent } from './components/job-schedule-list/job-schedule-list.component';
 
 
 @NgModule({
   declarations: [
     AddJobScheduleComponent,
-    JobPickerComponent
+    JobPickerComponent,
+    JobScheduleListComponent
   ],
   imports: [
     CommonModule,

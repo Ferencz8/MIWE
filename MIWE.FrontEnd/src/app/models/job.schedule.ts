@@ -1,4 +1,4 @@
-export class JobSchedule{
+export class JobSchedule {
 
   id: string;
 

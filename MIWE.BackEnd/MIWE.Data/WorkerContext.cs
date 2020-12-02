@@ -35,7 +35,8 @@ namespace MIWE.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<JobSessionDto>().HasNoKey();
-            modelBuilder.Entity<JobScheduleDto>().HasNoKey();
+            modelBuilder.Entity<JobScheduleLastSessionDto>().HasNoKey();
+            modelBuilder.Entity<JobSchedulePipelineDto>().HasNoKey();
         }
     }
 }

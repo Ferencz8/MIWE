@@ -8,6 +8,6 @@ namespace MIWE.Core.Interfaces
     public interface IWorkloadAnalyzer
     {
 
-        IEnumerable<Guid> ScanJobsAwaitingToBeRun(IEnumerable<JobScheduleDto> jobScheduleDtos);
+        IEnumerable<Guid> ScanJobsAwaitingToBeRun(IEnumerable<JobScheduleLastSessionDto> jobScheduleDtos);
     }
 }

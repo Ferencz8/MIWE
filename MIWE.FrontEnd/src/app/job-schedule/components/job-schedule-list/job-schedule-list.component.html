@@ -1,0 +1,38 @@
+<mat-card class="miwe-centered miwe-marginTop5perc">
+  <div class="miwe-card-header-cols">
+    <mat-card-header>
+      <mat-card-title> Schedules </mat-card-title>
+    </mat-card-header>
+    <button mat-mini-fab color="primary" routerLink="/home/addSchedule">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </div>
+  <mat-card-content>
+    <table mat-table [dataSource]="dataSource$" class="miwe-fullSize">
+      <!-- scheduling Column -->
+      <ng-container matColumnDef="scheduling">
+        <th mat-header-cell *matHeaderCellDef> Scheduling </th>
+        <td mat-cell *matCellDef="let element"> {{element.scheduling}} </td>
+      </ng-container>
+
+      <!-- pipeline Column -->
+      <ng-container matColumnDef="pipeline">
+        <th mat-header-cell *matHeaderCellDef> Pipeline </th>
+        <td mat-cell *matCellDef="let element"> {{element.pipeline}} </td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let element" [ngClass]="element.isSuccess ? 'is-green' : 'is-red'">
+          <button class="actionBtn" mat-raised-button color="primary" (click)="editJobSchedule(element.id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

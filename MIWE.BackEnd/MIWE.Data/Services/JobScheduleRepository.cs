@@ -15,12 +15,26 @@ namespace MIWE.Data.Services
 
         }
 
-        public IEnumerable<JobScheduleDto> GetJobsScheduledToRun()
+        public IEnumerable<JobScheduleLastSessionDto> GetJobsScheduledToRun()
         {
-            var results = _dbContext.Set<JobScheduleDto>().FromSqlRaw(@"SELECT js.*, jss.DateStart as LastSessionDateStart FROM JobSchedules js
+            var results = _dbContext.Set<JobScheduleLastSessionDto>().FromSqlRaw(@"SELECT js.*, jss.DateStart as LastSessionDateStart FROM JobSchedules js
 INNER JOIN JobSessions jss ON jss.EntityId = js.Id
 WHERE js.IsRunning = 0 AND jss.IsSuccess = 1
 ");
+
+            return results;
+        }
+
+        public IEnumerable<JobSchedulePipelineDto> GetJobSchedulesWithPipeline()
+        {
+            var results = _dbContext.Set<JobSchedulePipelineDto>().FromSqlRaw(@"
+SELECT 
+js.Id,
+j.Name + ' -> ' + j2.Name AS Pipeline,
+js.Scheduling
+FROM JobSchedules js
+INNER JOIN Jobs j ON j.Id = js.MainJob
+INNER JOIN Jobs j2 ON j2.Id = SUBSTRING(js.NextJobs, 1, LEN(js.NextJobs) - 1)");
 
             return results;
         }

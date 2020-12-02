@@ -10,7 +10,7 @@ namespace MIWE.Core
 {
     public class WorkloadAnalyzer : IWorkloadAnalyzer
     {
-        public IEnumerable<Guid> ScanJobsAwaitingToBeRun(IEnumerable<JobScheduleDto> jobsToBeRun)
+        public IEnumerable<Guid> ScanJobsAwaitingToBeRun(IEnumerable<JobScheduleLastSessionDto> jobsToBeRun)
         {
             List<Guid> ids = new List<Guid>();
             for (int i = 0; i < jobsToBeRun.Count(); i++)

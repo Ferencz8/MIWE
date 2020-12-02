@@ -9,6 +9,8 @@ namespace MIWE.Data.Services.Interfaces
     public interface IJobScheduleRepository : IGenericRepository<JobSchedule>
     {
 
-        public IEnumerable<JobScheduleDto> GetJobsScheduledToRun();
+        public IEnumerable<JobScheduleLastSessionDto> GetJobsScheduledToRun();
+
+        public IEnumerable<JobSchedulePipelineDto> GetJobSchedulesWithPipeline();
     }
 }

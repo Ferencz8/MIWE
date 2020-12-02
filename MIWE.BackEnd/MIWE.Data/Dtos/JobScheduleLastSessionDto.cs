@@ -7,7 +7,7 @@ using System.Text;
 namespace MIWE.Data.Dtos
 {
     [NotMapped]
-    public class JobScheduleDto
+    public class JobScheduleLastSessionDto
     {
         public Guid Id { get; set; }
 

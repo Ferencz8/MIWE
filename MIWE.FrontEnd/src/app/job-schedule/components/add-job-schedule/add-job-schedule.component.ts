@@ -69,11 +69,11 @@ export class AddJobScheduleComponent implements OnInit, AfterViewInit {
     jobSchedule.nextJobs.slice(0, -1);
 
     this.jobScheduleService.add(jobSchedule).subscribe(res => {
-      this.router.navigate(['../home/jobs']);
+      this.router.navigate(['../home/schedules']);
     });
   }
 
   cancel() {
-    this.router.navigate(['../home/jobs']);
+    this.router.navigate(['../home/schedules']);
   }
 }
