@@ -9,13 +9,13 @@
       <!-- dateStart Column -->
       <ng-container matColumnDef="dateStart">
         <th mat-header-cell *matHeaderCellDef> Start Date </th>
-        <td mat-cell *matCellDef="let element" [ngClass]="element.isSuccess ? 'is-green' : 'is-red'"> {{element.dateStart}} </td>
+        <td mat-cell *matCellDef="let element" [ngClass]="element.isSuccess ? 'is-green' : 'is-red'"> {{element.dateStart | date: 'medium' }} </td>
       </ng-container>
 
       <!-- dateEnd Column -->
       <ng-container matColumnDef="dateEnd">
         <th mat-header-cell *matHeaderCellDef> End Date </th>
-        <td mat-cell *matCellDef="let element" [ngClass]="element.isSuccess ? 'is-green' : 'is-red'"> {{element.dateEnd}} </td>
+        <td mat-cell *matCellDef="let element" [ngClass]="element.isSuccess ? 'is-green' : 'is-red'"> {{element.dateEnd | date: 'medium'}} </td>
       </ng-container>
 
       <!-- Instance Column -->

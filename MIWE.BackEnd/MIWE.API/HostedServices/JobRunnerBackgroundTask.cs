@@ -13,25 +13,26 @@ using System.Threading.Tasks;
 
 namespace MIWE.API.HostedServices
 {
-    public class JobRunnerTask : IHostedService
+    public class JobRunnerBackgroundTask : BackgroundService
     {
-        private ILogger<JobRunnerTask> _logger;
+        private ILogger<JobRunnerBackgroundTask> _logger;
         private IServiceScopeFactory _serviceScopeFactory;
 
-        public JobRunnerTask(ILogger<JobRunnerTask> logger, IServiceScopeFactory serviceScopeFactory)
+        public JobRunnerBackgroundTask(ILogger<JobRunnerBackgroundTask> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (true)
+            //while (true)
+            await Task.Delay(10000);
             {
                 try
                 {
-                    _logger.LogInformation("JobRunnerTask started");
-                    await DoWork(cancellationToken);
+                    _logger.LogInformation("JobRunnerBackgroundTask started");
+                    await DoWork(stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -39,8 +40,8 @@ namespace MIWE.API.HostedServices
                 }
                 finally
                 {
-                    Thread.Sleep(TimeSpan.FromMinutes(1));
-                    _logger.LogInformation("JobRunnerTask finished");
+                    //Thread.Sleep(TimeSpan.FromMinutes(1));
+                    _logger.LogInformation("JobRunnerBackgroundTask finished");
                 }
             }
         }
@@ -69,52 +70,6 @@ namespace MIWE.API.HostedServices
             }
         }
 
-        //private async Task DoWork()
-        //{
-        //    _logger.LogInformation("Timed Background Service is working.");
-
-        //    var tokenSource = new CancellationTokenSource();
-        //    var token = tokenSource.Token;
-        //    Task jobRunnerTask = Task.Factory.StartNew(async () =>
-        //    {
-        //        using (var scope = _serviceScopeFactory.CreateScope())
-        //        {
-        //            var scopedServices = scope.ServiceProvider;
-        //            var jobExecuter = scopedServices.GetRequiredService<IJobExecuter>();
-        //            var instanceService = scopedServices.GetRequiredService<IInstanceService>();
-
-        //            while (!token.IsCancellationRequested)
-        //            {
-        //                await RunJobs(jobExecuter, instanceService, token);
-
-        //                Thread.Sleep(TimeSpan.FromMinutes(1));
-        //            }
-
-        //            if (token.IsCancellationRequested)
-        //            {
-        //                token.ThrowIfCancellationRequested();
-        //            }
-        //        }
-
-        //    }, token);
-
-        //    try
-        //    {
-        //        jobRunnerTask.Wait();
-        //    }
-        //    catch (OperationCanceledException operationCanceledEx)
-        //    {
-        //        //log
-        //    }
-        //    catch (Exception genericException)
-        //    {
-        //        //log
-        //    }
-        //    finally
-        //    {
-        //        tokenSource.Dispose();
-        //    }
-        //}
         private async Task RunJobs(IJobExecuter jobExecuter, IInstanceService instanceService, CancellationToken token)
         {
             var allJobsRan = await jobExecuter.RunAllJobSchedules(token);
@@ -146,13 +101,6 @@ namespace MIWE.API.HostedServices
                     }
                 }
             }
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Timed Background Service is stopping.");
-
-            return Task.CompletedTask;
         }
     }
 }

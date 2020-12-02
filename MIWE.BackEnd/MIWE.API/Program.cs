@@ -57,10 +57,10 @@ namespace MIWE.API
                      });
                  });
              })
-            .ConfigureServices(services =>
-            {
-                services.AddHostedService<JobRunnerTask>();
-            })
+            //.ConfigureServices(services =>
+            //{
+            //    services.AddHostedService<JobRunnerTask>();
+            //})
              .UseStartup<Startup>();
     }
 }

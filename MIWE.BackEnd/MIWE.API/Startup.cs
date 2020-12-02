@@ -61,7 +61,7 @@ namespace MIWE.API
             services.AddScoped<IInstanceRepository, InstanceRepository>();
             services.AddSingleton<TaskSettings, TaskSettings>();
 
-            //services.AddHostedService<JobRunnerTask>();
+            services.AddHostedService<JobRunnerBackgroundTask>();
 
             Initialize(services);
         }
