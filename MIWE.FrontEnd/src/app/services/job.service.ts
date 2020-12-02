@@ -15,6 +15,10 @@ export class JobService {
     return this.httpClient.get<Job[]>(`${AppSettings.API_ENDPOINT}/Job`);
   }
 
+  public getAllAssociatedJobs(ids: string[]): Observable<Job[]>{
+    return this.httpClient.post<Job[]>(`${AppSettings.API_ENDPOINT}/Job/GetAssociatedJobs`, ids);
+  }
+
   public get(id): Observable<Job> {
     return this.httpClient.get<Job>(`${AppSettings.API_ENDPOINT}/Job/${id}`);
   }

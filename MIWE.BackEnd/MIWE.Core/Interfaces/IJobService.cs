@@ -19,6 +19,8 @@ namespace MIWE.Core.Interfaces
 
         Task<Job> GetById(Guid scheduledJobId);
 
+        IEnumerable<Job> GetByIds(IEnumerable<Guid> ids);
+
         void StartJob(Guid scheduledJobId);
 
         void StopJob(Guid scheduledJobId);

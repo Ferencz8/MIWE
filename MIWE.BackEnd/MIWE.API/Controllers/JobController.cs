@@ -58,6 +58,22 @@ namespace MIWE.API.Controllers
             }
         }
 
+        [HttpPost("GetAssociatedJobs")]
+        [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
+        [ProducesErrorResponseType(typeof(StatusCodeResult))]
+        public IActionResult GetAssociatedJobs([FromBody]IEnumerable<Guid> ids)
+        {
+            try
+            {
+                var scheduledJobs = _jobService.GetByIds(ids);
+                return Ok(scheduledJobs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
         // POST api/<JobsController>
         [HttpPost]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]

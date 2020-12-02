@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, ComponentFactoryResolver, ComponentRef, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { Job } from 'src/app/models/job';
 import { JobSchedule } from 'src/app/models/job.schedule';
 import { JobScheduleService } from 'src/app/services/job.schedule.service';
+import { JobService } from 'src/app/services/job.service';
 import { JobPickerComponent } from '../job-picker/job-picker.component';
 
 @Component({
@@ -10,33 +12,52 @@ import { JobPickerComponent } from '../job-picker/job-picker.component';
   templateUrl: './add-job-schedule.component.html',
   styleUrls: ['./add-job-schedule.component.css']
 })
-export class AddJobScheduleComponent implements OnInit, AfterViewInit {
+export class AddJobScheduleComponent implements OnInit {
 
-  @ViewChild('containerJobPicker', {read: ViewContainerRef})
+  @ViewChild('containerJobPicker', { read: ViewContainerRef })
   containerJobPicker: ViewContainerRef;
   // @ViewChild('containerJobPicker', { static: true }) containerJobPicker: ViewContainerRef;
   components = [];
 
   isEdit = false;
-  jobSchedules$: Observable<JobSchedule>;
+  jobSchedule$: Observable<JobSchedule>;
+
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private jobScheduleService: JobScheduleService,
-    private router: Router) { }
+    private router: Router, private route: ActivatedRoute, private jobService: JobService) { }
 
   ngOnInit(): void {
-    this.jobSchedules$ = of(new JobSchedule());
+    this.jobSchedule$ = of(new JobSchedule());
+
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (!id) {
+        return;
+      }
+
+      this.isEdit = true;
+
+      this.jobScheduleService.get(id).subscribe(data => {
+        this.jobSchedule$ = of(data);
+
+        const ids: string[] = [];
+        ids.push(data.mainJob);
+        const nextJobIds = data.nextJobs.split(',').filter(n => n !== '');
+        nextJobIds.forEach(n => ids.push(n));
+
+        ids.forEach(n => this.addJobPicker(n));
+      });
+    });
   }
 
-  ngAfterViewInit() {
-    console.log("ngAfterViewInit", this.containerJobPicker);
-  }
-
-  addJobPicker() {
+  addJobPicker(jobId: string) {
 
     // Create component dynamically inside the ng-template
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(JobPickerComponent);
     const component = this.containerJobPicker.createComponent(componentFactory);
-
+    if (jobId !== undefined) {
+      component.instance.selectedId = jobId;
+    }
     // Push the component so that we can keep track of which components are created
     this.components.push(component);
   }
@@ -55,22 +76,28 @@ export class AddJobScheduleComponent implements OnInit, AfterViewInit {
 
   save(jobSchedule: JobSchedule) {
 
-    //let component: ComponentRef<JobPickerComponent> = this.components.find((component) => component.instance instanceof JobPickerComponent);
     const mainComponent = this.components[0] as ComponentRef<JobPickerComponent>;
     const mainJobId = mainComponent.instance.selected.id;
 
     jobSchedule.mainJob = mainJobId;
     jobSchedule.nextJobs = '';
 
-    for (let index = 1; index < this.components.length; index++){
+    for (let index = 1; index < this.components.length; index++) {
       const refComponent = this.components[index] as ComponentRef<JobPickerComponent>;
       jobSchedule.nextJobs += refComponent.instance.selected.id + ',';
     }
     jobSchedule.nextJobs.slice(0, -1);
 
-    this.jobScheduleService.add(jobSchedule).subscribe(res => {
-      this.router.navigate(['../home/schedules']);
-    });
+    if (this.isEdit) {
+      this.jobScheduleService.update(jobSchedule).subscribe(res => {
+        this.router.navigate(['../home/schedules']);
+      });
+    }
+    else {
+      this.jobScheduleService.add(jobSchedule).subscribe(res => {
+        this.router.navigate(['../home/schedules']);
+      });
+    }
   }
 
   cancel() {

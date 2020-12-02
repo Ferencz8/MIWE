@@ -1,4 +1,4 @@
-<mat-card *ngIf="jobSchedules$ | async as jobScheduled; else loading"
+<mat-card *ngIf="jobSchedule$ | async as jobScheduled; else loading"
   class="miwe-halfSize miwe-centered miwe-marginTop5perc">
   <mat-card-header>
     <mat-card-title *ngIf="!isEdit">Add</mat-card-title>

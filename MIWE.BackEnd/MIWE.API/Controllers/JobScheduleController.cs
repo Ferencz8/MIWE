@@ -58,9 +58,20 @@ namespace MIWE.API.Controllers
 
         // PUT api/<JobScheduleController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
+        [ProducesErrorResponseType(typeof(StatusCodeResult))]
+        public async Task<IActionResult> Put(Guid id, [FromBody] JobSchedule jobSchedule)
         {
+            try
+            {
+                await _jobScheduleRepository.Update(jobSchedule);
 
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
         // DELETE api/<JobScheduleController>/5

@@ -11,15 +11,18 @@ import { JobService } from 'src/app/services/job.service';
 export class JobPickerComponent implements OnInit {
 
   selected: Job;
+  selectedId: string;
 
   jobs$: Observable<Job[]>;
-
 
   constructor(private jobService: JobService) { }
 
   ngOnInit(): void {
-    this.jobService.getAll().subscribe((data) => { this.jobs$ = of(data); });
-    //this.jobs$ = this.jobService.getAll();
+    this.jobService.getAll().subscribe((data) => {
+      this.jobs$ = of(data);
+      if (this.selectedId !== undefined) {
+        this.selected = data.find(n => n.id === this.selectedId);
+      }
+    });
   }
-
 }

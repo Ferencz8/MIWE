@@ -57,6 +57,11 @@ namespace MIWE.Core
             return await _jobRepository.GetById(jobId);
         }
 
+        public IEnumerable<Job> GetByIds(IEnumerable<Guid> ids)
+        {
+            return _jobRepository.GetAll(n => ids.Contains(n.Id));
+        }
+
         public async Task MarkStopped(int instanceId)
         {
             await _jobRepository.MarkStopped(instanceId);
