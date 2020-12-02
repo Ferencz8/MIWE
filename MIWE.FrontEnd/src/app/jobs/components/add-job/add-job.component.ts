@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { Job } from 'src/app/models/job';
 import { FileSystemFileEntry, NgxFileDropEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
 import { JobService } from 'src/app/services/job.service';
+import { SnackbarService } from 'src/app/shared/snackbar.service';
 
 @Component({
   selector: 'app-add-job',
@@ -11,8 +12,8 @@ import { JobService } from 'src/app/services/job.service';
   styleUrls: ['./add-job.component.css']
 })
 export class AddJobComponent implements OnInit {
-  selectedOS = 0;
-  selectedType = 0;
+  selectedOS = '0';
+  selectedType = '0';
   isEdit = false;
   job$: Observable<Job>;
 
@@ -23,30 +24,51 @@ export class AddJobComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private jobService: JobService,
-    private router: Router) { }
+    private router: Router,
+    private snackbar: SnackbarService) { }
 
   ngOnInit(): void {
     this.job$ = of(new Job());
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (!id) {
+        return;
+      }
+
+      this.isEdit = true;
+
+      this.jobService.get(id).subscribe(data => {
+        this.selectedOS = data.osType.toString();
+        this.selectedType = data.pluginType.toString();
+        this.job$ = of(data);
+      });
+    });
   }
 
   save(job: Job) {
-      if (this.dllFile) {
-        this.jobService.upload(this.dllFile, job.name).subscribe((res: any) => {
+    if (this.dllFile) {
+      this.jobService.upload(this.dllFile, job.name).subscribe((res: any) => {
 
-          if (!!res && !!res.fileUrl){
-            job.pluginPath = res.fileUrl;
-            job.osType = Number(this.selectedOS);
-            job.pluginType = Number(this.selectedType);
-            job.isActive = true;
+        if (!!res && !!res.fileUrl) {
+          job.pluginPath = res.fileUrl;
+          job.osType = Number(this.selectedOS);
+          job.pluginType = Number(this.selectedType);
+          job.isActive = true;
+          if (this.isEdit) {
+            this.jobService.update(job).subscribe(res2 => this.router.navigate(['../home/jobs']));
+          }
+          else {
             this.jobService.add(job).subscribe(res2 =>
               this.router.navigate(['../home/jobs'])
             );
           }
-        });
-      }
-      else{
-        //display required dll
-      }
+        }
+      });
+    }
+    else {
+      //display required dll
+      this.snackbar.open('The dll is required.');
+    }
   }
 
   cancel() {

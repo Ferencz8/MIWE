@@ -148,6 +148,11 @@ namespace MIWE.Core
                 {
                     Directory.CreateDirectory(finalPath);
                 }
+                else
+                {
+                    Directory.Delete(finalPath, true);
+                    Directory.CreateDirectory(finalPath);
+                }
                 ZipFile.ExtractToDirectory(path, finalPath);
 
                 System.IO.File.Delete(path);//remove archive
@@ -176,6 +181,11 @@ namespace MIWE.Core
         {
             var jobSessions = _jobSessionRepository.GetJobSessionDtos();
             return jobSessions;
+        }
+
+        public async Task Update(Job job)
+        {
+            await _jobRepository.Update(job);
         }
     }
 }

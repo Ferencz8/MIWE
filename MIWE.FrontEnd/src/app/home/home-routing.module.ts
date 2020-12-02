@@ -11,6 +11,7 @@ const routes: Routes = [
     path: 'home', component: HomeComponent, children: [
       { path: 'jobs', component: JobsComponent },
       { path: 'addjob', component: AddJobComponent },
+      { path: 'editJob/:id', component: AddJobComponent },
       { path: 'schedules', component: AddJobScheduleComponent },
       { path: 'sessions', component: SessionsListComponent },
     ]

@@ -1,12 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { OSType } from 'src/app/models/os.type';
 import { PluginType } from 'src/app/models/plugin,type';
 import { Job } from 'src/app/models/job';
 import { JobService } from 'src/app/services/job.service';
 import { SnackbarService } from 'src/app/shared/snackbar.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'jobs-list',
@@ -27,7 +26,7 @@ export class JobsComponent implements OnInit {
     { id: '1', name: 'first', description: 'scacas', osType: 1, isActive: true, isRunning: false, pluginPath: null, pluginType: 0 }
   ];
 
-  constructor(private jobService: JobService, private snackbar: SnackbarService) { }
+  constructor(private jobService: JobService, private snackbar: SnackbarService, private router: Router) { }
 
   ngOnInit(): void {
 
@@ -65,5 +64,9 @@ export class JobsComponent implements OnInit {
       this.isJobStarted = false;
       this.dataSource$ = of(n);
     });
+  }
+
+  editJob(id): void {
+    this.router.navigate([`/home/editJob/${id}`]);
   }
 }

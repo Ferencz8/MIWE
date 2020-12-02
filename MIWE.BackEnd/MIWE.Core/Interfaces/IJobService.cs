@@ -13,6 +13,8 @@ namespace MIWE.Core.Interfaces
 
         Task<Guid> Add(Job scheduledJob);
 
+        Task Update(Job scheduledJob);
+
         IEnumerable<Job> Get();
 
         Task<Job> GetById(Guid scheduledJobId);

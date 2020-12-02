@@ -65,7 +65,10 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> Actions </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-raised-button color="primary" (click)="element.isRunning ? stopJob(element.id) : startJob(element.id)" *ngIf="element.pluginType == 0">
+          <button class="actionBtn" mat-raised-button color="primary" (click)="editJob(element.id)" [disabled]="!!element.isRunning">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="actionBtn" mat-raised-button color="primary" (click)="element.isRunning ? stopJob(element.id) : startJob(element.id)" *ngIf="element.pluginType == 0">
             <mat-icon *ngIf="!element.isRunning">play_arrow</mat-icon>
             <mat-icon *ngIf="!!element.isRunning">stop</mat-icon>
           </button>

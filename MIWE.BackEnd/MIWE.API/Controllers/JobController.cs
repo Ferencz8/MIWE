@@ -45,11 +45,11 @@ namespace MIWE.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
         [ProducesErrorResponseType(typeof(StatusCodeResult))]
-        public IActionResult Get(Guid scheduledJobId)
+        public async Task<IActionResult> Get(Guid id)
         {
             try
             {
-                var scheduledJob = _jobService.GetById(scheduledJobId);
+                var scheduledJob = await _jobService.GetById(id);
                 return Ok(scheduledJob);
             }
             catch (Exception ex)
@@ -77,8 +77,19 @@ namespace MIWE.API.Controllers
 
         // PUT api/<JobsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
+        [ProducesErrorResponseType(typeof(StatusCodeResult))]
+        public async Task<IActionResult> Put(Guid id, [FromBody] Job scheduledJob)
         {
+            try
+            {
+                await _jobService.Update(scheduledJob);
+                return Ok(scheduledJob);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
         [HttpGet("[action]/{jobId}")]
