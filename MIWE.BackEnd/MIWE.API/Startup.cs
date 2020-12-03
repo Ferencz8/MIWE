@@ -21,6 +21,8 @@ using MIWE.Data;
 using MIWE.Data.Services.Interfaces;
 using MIWE.API.HostedServices;
 using MIWE.Core.Models;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
 namespace MIWE.API
 {
@@ -47,6 +49,9 @@ namespace MIWE.API
 
             var connString = Configuration.GetSection("DbConn")?.Value;
             services.AddDbContext<WorkerContext>(options => options.UseSqlServer(connString));
+            services.AddHealthChecks().AddSqlServer(connString);
+            services.AddHealthChecksUI().AddInMemoryStorage();
+
 
 
             services.AddScoped<IJobService, JobService>();
@@ -91,9 +96,19 @@ namespace MIWE.API
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseMvc();
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<JobReceiver>();
+            });
+            app.UseHealthChecks("/hc", new HealthCheckOptions() {
+                Predicate = _ => true,
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
+            app.UseHealthChecksUI(options =>
+            {
+                options.UIPath = "/hc-ui";
             });
         }
 
