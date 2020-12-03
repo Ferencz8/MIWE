@@ -68,7 +68,7 @@ namespace MIWE.Core
             }
         }
 
-        private static string FindCrawlDLL<TInstance>(string crawlPath)
+        private string FindCrawlDLL<TInstance>(string crawlPath)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(crawlPath);
             var files = directoryInfo.GetFiles("*.dll");
@@ -183,7 +183,7 @@ namespace MIWE.Core
             }
         }
 
-        private static List<String> DirSearch(string sDir)
+        private  List<String> DirSearch(string sDir)
         {
             List<String> files = new List<String>();
             foreach (string f in Directory.GetFiles(sDir).Where(n => n.EndsWith(".dll")))
@@ -197,5 +197,5 @@ namespace MIWE.Core
 
             return files;
         }
-    }
+    } 
 }

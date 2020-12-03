@@ -3,8 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { Job } from 'src/app/models/job';
 import { JobSchedule } from 'src/app/models/job.schedule';
+import { PluginType } from 'src/app/models/plugin,type';
 import { JobScheduleService } from 'src/app/services/job.schedule.service';
 import { JobService } from 'src/app/services/job.service';
+import { SnackbarService } from 'src/app/shared/snackbar.service';
 import { JobPickerComponent } from '../job-picker/job-picker.component';
 
 @Component({
@@ -24,7 +26,7 @@ export class AddJobScheduleComponent implements OnInit {
 
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private jobScheduleService: JobScheduleService,
-    private router: Router, private route: ActivatedRoute, private jobService: JobService) { }
+    private router: Router, private route: ActivatedRoute, private jobService: JobService, private snackbar: SnackbarService) { }
 
   ngOnInit(): void {
     this.jobSchedule$ = of(new JobSchedule());
@@ -52,12 +54,17 @@ export class AddJobScheduleComponent implements OnInit {
 
   addJobPicker(jobId: string) {
 
+    if (this.components.length >= 2){
+      this.snackbar.open('Only one Crawler & Processor are allowed for now!');
+      return;
+    }
     // Create component dynamically inside the ng-template
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(JobPickerComponent);
     const component = this.containerJobPicker.createComponent(componentFactory);
     if (jobId !== undefined) {
       component.instance.selectedId = jobId;
     }
+    component.instance.pluginType = this.components.length >= 1 ? PluginType.DataProcessor : PluginType.Crawler;
     // Push the component so that we can keep track of which components are created
     this.components.push(component);
   }
