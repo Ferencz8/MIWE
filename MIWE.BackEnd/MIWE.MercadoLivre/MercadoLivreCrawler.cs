@@ -39,8 +39,8 @@ namespace MIWE.MercadoLivre
             {
                 if (cancellationToken.HasValue)
                     CancellationToken = cancellationToken.Value;
-                //TODO:: link the 2 cancellation tokens
-                Task startTask = Task.Factory.StartNew(()=> Start());
+
+                Task startTask = Task.Factory.StartNew(()=> Start(), CancellationToken);
                 startTask.Wait();
                 return true;
             }
@@ -63,6 +63,11 @@ namespace MIWE.MercadoLivre
                     var elements = _htmlDocument.DocumentNode.SelectNodes("//div[@class = 'ui-search-result__wrapper']");
                     foreach (var element in elements)
                     {
+                        if (CancellationToken != null && CancellationToken.IsCancellationRequested)
+                        {
+                            CancellationToken.ThrowIfCancellationRequested();
+                        }
+
                         var link = element.SelectSingleNode("//a[@class='ui-search-item__group__element ui-search-link']")?.GetAttributeValue("href", string.Empty);
                         var name = element.SelectSingleNode("//h2[@class='ui-search-item__title']")?.InnerText;
                         var price = element.SelectSingleNode("//div[contains(@class,'ui-search-item__group__element')]//span[@class='price-tag ui-search-price__part']")?.InnerText;

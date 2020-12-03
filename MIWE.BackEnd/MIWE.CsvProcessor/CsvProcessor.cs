@@ -16,7 +16,6 @@ namespace MIWE.CsvProcessor
             {
                 string path = Path.Combine(Directory.GetCurrentDirectory(), merchantName);
                 using (var memoryStream = new MemoryStream())
-                //using (var writer = new StreamWriter($"{path}.csv"))
                 using (var writer = new StreamWriter(memoryStream))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
