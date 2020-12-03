@@ -11,6 +11,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { HttpClientModule } from '@angular/common/http';
 import { JobScheduleModule } from './job-schedule/job-schedule.module';
 import { JobSessionModule } from './job-sessions/job-sessions.module';
+import { InstanceModule } from './instances/instance.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { JobSessionModule } from './job-sessions/job-sessions.module';
     JobsModule,
     JobScheduleModule,
     JobSessionModule,
+    InstanceModule,
     AppRoutingModule,
   ],
   providers: [],

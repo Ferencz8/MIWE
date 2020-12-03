@@ -6,6 +6,7 @@ import { AddJobComponent } from '../jobs/components/add-job/add-job.component';
 import { AddJobScheduleComponent } from '../job-schedule/components/add-job-schedule/add-job-schedule.component';
 import { SessionsListComponent } from '../job-sessions/components/sessions-list/sessions-list.component';
 import { JobScheduleListComponent } from '../job-schedule/components/job-schedule-list/job-schedule-list.component';
+import { InstancesComponent } from '../instances/components/instances/instances.component';
 
 const routes: Routes = [
   {
@@ -17,6 +18,7 @@ const routes: Routes = [
       { path: 'editSchedule/:id', component: AddJobScheduleComponent },
       { path: 'schedules', component: JobScheduleListComponent },
       { path: 'sessions', component: SessionsListComponent },
+      { path: 'instances', component: InstancesComponent },
     ]
   },
 ];

@@ -1,0 +1,62 @@
+<mat-card class="miwe-centered miwe-marginTop5perc">
+  <div class="miwe-card-header-cols">
+    <mat-card-header>
+      <mat-card-title> Instances </mat-card-title>
+    </mat-card-header>
+  </div>
+  <mat-card-content>
+    <table mat-table [dataSource]="dataSource$" class="miwe-fullSize">
+      <!-- IP Column -->
+      <ng-container matColumnDef="ip">
+        <th mat-header-cell *matHeaderCellDef> IP </th>
+        <td mat-cell *matCellDef="let element"> {{element.ip}} </td>
+      </ng-container>
+
+      <!-- cpuThreshold Column -->
+      <ng-container matColumnDef="cpuThreshold">
+        <th mat-header-cell *matHeaderCellDef> CPU Threshold </th>
+        <td mat-cell *matCellDef="let element"> {{element.cpuThreshold}} </td>
+      </ng-container>
+
+      <!-- isAvailable Column -->
+      <ng-container matColumnDef="isAvailable">
+        <th mat-header-cell *matHeaderCellDef> Is Available </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon *ngIf="!!element.isAvailable">radio_button_checked</mat-icon>
+          <mat-icon *ngIf="!element.isAvailable">radio_button_unchecked</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- isMaster Column -->
+      <ng-container matColumnDef="isMaster">
+        <th mat-header-cell *matHeaderCellDef> Is Master </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon *ngIf="!!element.isMaster">radio_button_checked</mat-icon>
+          <mat-icon *ngIf="!element.isMaster">radio_button_unchecked</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- isDown Column -->
+      <ng-container matColumnDef="isDown">
+        <th mat-header-cell *matHeaderCellDef> Is Down </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon *ngIf="!!element.isDown">radio_button_checked</mat-icon>
+          <mat-icon *ngIf="!element.isDown">radio_button_unchecked</mat-icon>
+        </td>
+      </ng-container>
+
+      <!-- Symbol Column -->
+      <!-- <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let element">
+          <button class="actionBtn" mat-raised-button color="primary" (click)="editInstance(element.id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </td>
+      </ng-container> -->
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

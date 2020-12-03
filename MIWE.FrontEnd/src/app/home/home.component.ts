@@ -11,6 +11,7 @@ export class HomeComponent implements OnInit {
     { label: 'Jobs', path: '/home/jobs', isActive: true },
     { label: 'Schedules', path: '/home/schedules', isActive: false },
     { label: 'Sessions', path: '/home/sessions', isActive: false },
+    { label: 'Instances', path: '/home/instances', isActive: false },
   ];
   constructor() { }
 
