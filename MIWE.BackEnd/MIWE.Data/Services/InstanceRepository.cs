@@ -44,5 +44,39 @@ namespace MIWE.Data.Services
             currentInstance.IsMaster = false;
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<int> CheckOrChangeMaster(int currentId)
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync(@"
+BEGIN TRANSACTION
+DECLARE @MasterInstanceId Integer
+SELECT @MasterInstanceId = Id FROM Instances 
+WITH (TABLOCK, HOLDLOCK)
+WHERE IsMaster = 1 AND IsDown = 1
+IF(@MasterInstanceId IS not NULL)
+BEGIN 
+	UPDATE Instances SET IsMaster = 0 WHERE Id = @MasterInstanceId
+	UPDATE Instances SET IsMaster = 1 WHERE Id = {0}
+	SELECT 1
+END
+ELSE 
+BEGIN
+	SELECT 0
+END
+COMMIT TRANSACTION", currentId);
+        }
+
+        public async Task ChangeMaster(int currentId)
+        {
+            await _dbContext.Database.ExecuteSqlRawAsync(@"
+BEGIN TRANSACTION
+DECLARE @MasterInstanceId Integer
+SELECT @MasterInstanceId = Id FROM Instances 
+WITH (TABLOCK, HOLDLOCK)
+WHERE IsMaster = 1
+UPDATE Instances SET IsMaster = 0, IsDown = 1 WHERE Id = @MasterInstanceId
+UPDATE Instances SET IsMaster = 1 WHERE Id = {0}
+COMMIT TRANSACTION", currentId);
+        }
     }
 }

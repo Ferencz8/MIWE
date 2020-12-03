@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MIWE.Data.Services.Interfaces;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MIWE.Data.Services
 {
@@ -55,10 +56,9 @@ namespace MIWE.Data.Services
             return _instanceRepository.IsMasterRegistered();
         }
 
-        public void RegisterInstance(bool isMaster)
+        public async Task RegisterInstance(bool isMaster)
         {
             string currentIp = GetCurrentExternalIP();
-
             //instance exists
             var existingInstance = _instanceRepository.GetAll(n => n.IP == currentIp).FirstOrDefault();
             if (existingInstance != null)
@@ -66,33 +66,26 @@ namespace MIWE.Data.Services
                 if (existingInstance.IsDown)
                 {
                     existingInstance.IsDown = false;
-                    _instanceRepository.Update(existingInstance);
+                    existingInstance.IsMaster = isMaster;
+                    await _instanceRepository.Update(existingInstance);
                 }
                 return;
             }
-
-            //adding instance
-            _instanceRepository.Create(new Instance()
-            {
-                IP = currentIp,
-                IsAvailable = true,
-                IsDown = false,
-                IsMaster = isMaster
-            });
-
-            if (isMaster)
-            {
-                var currentMaster = _instanceRepository.GetAll(n => n.IsMaster).FirstOrDefault();
-                if (currentMaster != null)
+            else
+            { //adding instance
+                await _instanceRepository.Create(new Instance()
                 {
-                    currentMaster.IsMaster = false;
-                    _instanceRepository.Update(currentMaster);
-                }
+                    IP = currentIp,
+                    IsAvailable = true,
+                    IsDown = false,
+                    IsMaster = isMaster
+                });
             }
         }
 
         private string GetCurrentExternalIP()
         {
+            return "https://localhost:8008";
             try
             {
                 string externalIP;
@@ -101,7 +94,8 @@ namespace MIWE.Data.Services
                              .Matches(externalIP)[0].ToString();
                 return externalIP;
             }
-            catch { return "85.204.6.250"; }
+            //            catch { return "85.204.6.250"; }
+            catch { return "https://localhost:8008"; }
         }
 
         public void CheckInstanceAvailability()
@@ -136,6 +130,11 @@ namespace MIWE.Data.Services
             } while (totcalCpuValue == 0 || totcalCpuValue == 100);
 
             return totcalCpuValue > 50;//TODO:: use property CPUThreshold from entity
+        }
+
+        public Instance GetMasterInstance()
+        {
+            return _instanceRepository.GetAll(n => n.IsMaster).FirstOrDefault();
         }
     }
 }

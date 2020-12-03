@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MIWE.Data.Services
 {
@@ -14,7 +15,7 @@ namespace MIWE.Data.Services
 
         bool IsMasterRegistered();
 
-        void RegisterInstance(bool isMaster);
+        Task RegisterInstance(bool isMaster);
 
         void CheckInstanceAvailability();
 
@@ -23,5 +24,7 @@ namespace MIWE.Data.Services
         void MarkInstanceDown(bool isdown = false);
 
         bool IsCPUThresholdReached();
+
+        Instance GetMasterInstance();
     }
 }

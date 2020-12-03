@@ -14,5 +14,9 @@ namespace MIWE.Data.Services.Interfaces
         Task MarkInstanceAvailable(string currentIp, bool isAvailable = false);
 
         Task MarkInstanceDown(string currentIp, bool isdown = false);
+
+        Task<int> CheckOrChangeMaster(int currentId);
+
+        Task ChangeMaster(int currentId);
     }
 }

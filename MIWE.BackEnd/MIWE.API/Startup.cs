@@ -65,8 +65,8 @@ namespace MIWE.API
             services.AddScoped<IJobScheduleRepository, JobScheduleRepository>();
             services.AddScoped<IInstanceRepository, InstanceRepository>();
             services.AddSingleton<TaskSettings, TaskSettings>();
-
-            services.AddHostedService<JobRunnerBackgroundTask>();
+            services.AddSingleton<JobRunnerBackgroundTask, JobRunnerBackgroundTask>();
+            
 
             Initialize(services);
         }
@@ -136,11 +136,13 @@ namespace MIWE.API
             {
                 Console.WriteLine("This instance will run as a Slave");
                 instanceService.RegisterInstance(false);
+                services.AddHostedService<SelfRecoveryBackgroundTask>();
             }
             else
             {
                 Console.WriteLine("This instance will run as a Master");
                 instanceService.RegisterInstance(true);
+                services.AddHostedService<JobRunnerBackgroundTask>();
             }
         }
 
