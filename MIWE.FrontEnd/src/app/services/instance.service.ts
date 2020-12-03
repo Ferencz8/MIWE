@@ -14,5 +14,9 @@ export class InstanceService {
   public getAll(): Observable<Instance[]> {
     return this.httpClient.get<Instance[]>(`${AppSettings.API_ENDPOINT}/Instance`);
   }
+
+  public getCurrentInstanceType(): Observable<string> {
+    return this.httpClient.get<string>(`${AppSettings.API_ENDPOINT}/Instance/GetCurrentInstance`);
+  }
 }
 

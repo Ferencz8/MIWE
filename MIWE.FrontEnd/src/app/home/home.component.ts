@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { InstanceService } from '../services/instance.service';
 
 @Component({
   selector: 'app-home',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+
+  instanceType = '';
   title = 'miwe';
   navLinks = [
     { label: 'Jobs', path: '/home/jobs', isActive: true },
@@ -13,9 +16,12 @@ export class HomeComponent implements OnInit {
     { label: 'Sessions', path: '/home/sessions', isActive: false },
     { label: 'Instances', path: '/home/instances', isActive: false },
   ];
-  constructor() { }
+  constructor(private instanceService: InstanceService) { }
 
   ngOnInit(): void {
+    this.instanceService.getCurrentInstanceType().subscribe(data => {
+      this.instanceType = data;
+    });
   }
 
 }

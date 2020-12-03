@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MIWE.Data;
 using MIWE.Data.Services;
@@ -29,6 +30,14 @@ namespace MIWE.API.Controllers
         public IEnumerable<Instance> Get()
         {
             return _instanceRepository.GetAll();
+        }
+
+        [HttpGet("[action]")]
+        [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
+        [ProducesErrorResponseType(typeof(StatusCodeResult))]
+        public IActionResult GetCurrentInstance()
+        {
+            return new JsonResult(_instanceService.GetCurrentInstance().IsMaster ? "Master" : "Slave");
         }
     }
 }

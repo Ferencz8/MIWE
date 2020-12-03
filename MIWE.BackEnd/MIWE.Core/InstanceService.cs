@@ -29,6 +29,13 @@ namespace MIWE.Data.Services
             return instance.Id;
         }
 
+        public Instance GetCurrentInstance()
+        {
+            string ip = GetCurrentExternalIP();
+            var instance = _instanceRepository.GetAll(n => n.IP == ip).FirstOrDefault();
+            return instance;
+        }
+
         public string GetAvailableInstanceIP()
         {
             string availableIP = string.Empty;

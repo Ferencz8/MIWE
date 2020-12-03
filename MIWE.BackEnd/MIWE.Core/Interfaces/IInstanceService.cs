@@ -8,6 +8,8 @@ namespace MIWE.Data.Services
     {
         int GetCurrentInstanceId();
 
+        Instance GetCurrentInstance();
+
         string GetAvailableInstanceIP();
 
         bool IsMasterRegistered();
