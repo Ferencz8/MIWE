@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MIWE.Data;
 using MIWE.Data.Services;
 using MIWE.Data.Services.Interfaces;
 using System;
@@ -92,7 +93,7 @@ namespace MIWE.API.HostedServices
             }
         }
 
-        private static async Task<bool> PoolMasterAvailability(Data.Instance masterInstance)
+        private async Task<bool> PoolMasterAvailability(Instance masterInstance)
         {
             int failed = 0;
             do

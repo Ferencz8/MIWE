@@ -112,6 +112,8 @@ namespace MIWE.Core
 
         public async Task RunScheduledJob(int instanceId, Guid jobScheduleId, CancellationToken? cancellationToken = null)
         {
+            Guid? jobSessionId = null;
+            bool result = false;
             try
             {
                 JobSchedule jobSchedule;
@@ -126,7 +128,7 @@ namespace MIWE.Core
                     .ToList();//,-> one after another ;-> paralel
 
                 //start sessions
-                var jobSessionId = await AddJobSession(instanceId, jobSchedule.Id);
+                jobSessionId = await AddJobSession(instanceId, jobSchedule.Id);
                 foreach (var jobId in jobIds)
                 {
                     var job = await _jobRepository.GetById(jobId);
@@ -139,18 +141,13 @@ namespace MIWE.Core
                 //TODO:: check if plugins are locally present
                 var crawlerPluginPath = PluginHelper.GetLocalPluginPath(mainJob.Name, mainJob.PluginPath, mainJob.DateModified);
                 var processorPluginPath = PluginHelper.GetLocalPluginPath(jobs.FirstOrDefault().Name, jobs.FirstOrDefault().PluginPath, jobs.FirstOrDefault().DateModified);
-                bool result = _pluginRunner.Run(new PluginRunningParameters()
+                result = _pluginRunner.Run(new PluginRunningParameters()
                 {
                     MerchantName = jobs.FirstOrDefault().Name,
                     CrawlerPluginPath = crawlerPluginPath,//GetCrawlPath(mainJob.PluginPath),
                     ProcessorPluginPath = processorPluginPath,//GetCrawlPath(jobs.FirstOrDefault().PluginPath),
-                    ProcessorSaveAction = GetSaveProcessedActionData(jobSessionId)
+                    ProcessorSaveAction = GetSaveProcessedActionData(jobSessionId.Value)
                 }, cancellationToken);
-
-                //finish sessions
-                await MarkJobSessionsAsEnded(jobSessionId, result);
-
-                await MarkScheduledJobAsEnded(mainJob);
 
                 //TODO:: add support for multiple data processors
             }
@@ -158,12 +155,21 @@ namespace MIWE.Core
             {
                 _logger.LogError($"Failed to run scheduled job with Id: {jobScheduleId}", ex);
             }
+            finally
+            {
+                //finish sessions
+                if(jobSessionId.HasValue)
+                    await MarkJobSessionsAsEnded(jobSessionId.Value, result);
+
+                await MarkScheduledJobAsEnded(jobScheduleId);
+            }
         }
 
         private Action<MemoryStream, string> GetSaveProcessedActionData(Guid jobSessionId)
         {
             return async (memoryStream, extension) =>
             {
+                memoryStream.Position = 0;
                 string path = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.ProcessedDataFolder).Value);
                 if (!Directory.Exists(path))
                 {
@@ -190,11 +196,11 @@ namespace MIWE.Core
             return pluginPath;
         }
 
-        private async Task MarkScheduledJobAsEnded(Job mainJob)
+        private async Task MarkScheduledJobAsEnded(Guid scheduledJobId)
         {
-            var ranJob = await _jobRepository.GetById(mainJob.Id);
-            ranJob.IsRunning = false;
-            await _jobRepository.Update(ranJob);
+            var ranScheduledJob = await _jobScheduleRepository.GetById(scheduledJobId);
+            ranScheduledJob.IsRunning = false;
+            await _jobScheduleRepository.Update(ranScheduledJob);
         }
 
         private async Task MarkJobSessionsAsEnded(Guid mainJobSessionId, bool result)

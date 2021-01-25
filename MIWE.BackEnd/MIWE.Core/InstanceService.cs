@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using MIWE.Data.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace MIWE.Data.Services
 {
@@ -56,7 +57,7 @@ namespace MIWE.Data.Services
             return _instanceRepository.IsMasterRegistered();
         }
 
-        public async Task RegisterInstance(bool isMaster)
+        public async Task<int> RegisterInstance(bool isMaster)
         {
             string currentIp = GetCurrentExternalIP();
             //instance exists
@@ -69,17 +70,19 @@ namespace MIWE.Data.Services
                     existingInstance.IsMaster = isMaster;
                     await _instanceRepository.Update(existingInstance);
                 }
-                return;
+                return existingInstance.Id;
             }
             else
-            { //adding instance
-                await _instanceRepository.Create(new Instance()
+            { 
+                //adding instance
+                var newInstance = await _instanceRepository.Create(new Instance()
                 {
                     IP = currentIp,
                     IsAvailable = true,
                     IsDown = false,
                     IsMaster = isMaster
                 });
+                return newInstance.Id;
             }
         }
 
@@ -135,6 +138,29 @@ namespace MIWE.Data.Services
         public Instance GetMasterInstance()
         {
             return _instanceRepository.GetAll(n => n.IsMaster).FirstOrDefault();
+        }
+
+        public async Task<bool> PoolMasterAvailability(Instance masterInstance)
+        {
+            int failed = 0;
+            do
+            {
+                try
+                {
+                    using (HttpClient client = new HttpClient())
+                    {
+                        HttpResponseMessage response = await client.GetAsync($"{masterInstance.IP}/hc");
+                        response.EnsureSuccessStatusCode();
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    failed++;
+                }
+            }
+            while (failed < 3);
+            return false;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace MIWE.Data.Services
 
         bool IsMasterRegistered();
 
-        Task RegisterInstance(bool isMaster);
+        Task<int> RegisterInstance(bool isMaster);
 
         void CheckInstanceAvailability();
 
@@ -26,5 +26,7 @@ namespace MIWE.Data.Services
         bool IsCPUThresholdReached();
 
         Instance GetMasterInstance();
+
+        Task<bool> PoolMasterAvailability(Instance masterInstance);
     }
 }

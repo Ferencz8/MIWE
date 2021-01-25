@@ -25,6 +25,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using MIWE.Common;
 
 namespace MIWE.API
 {
@@ -142,18 +144,31 @@ namespace MIWE.API
 
         private void Initialize(IServiceCollection services)
         {
-            DecideMaster(services);
+            DecideMasterInstance(services);
         }
 
-        private void DecideMaster(IServiceCollection services)
+        private void DecideMasterInstance(IServiceCollection services)
         {
             var instanceService = services.BuildServiceProvider().GetService<IInstanceService>();
-            bool isMasterRegistered = instanceService.IsMasterRegistered();
+            var instanceRepo = services.BuildServiceProvider().GetService<IInstanceRepository>();
+            bool isMasterRegistered = instanceService.IsMasterRegistered(); 
+            
             if (isMasterRegistered)
             {
-                Console.WriteLine("This instance will run as a Slave");
-                instanceService.RegisterInstance(false);
-                services.AddHostedService<SelfRecoveryBackgroundTask>();
+                var masterInstance = instanceService.GetMasterInstance();
+                string currentIp = HttpHelper.GetCurrentExternalIP();
+                if (masterInstance.IP == currentIp)
+                {
+                    Console.WriteLine("This instance will run as a Master");
+                    instanceService.RegisterInstance(true);
+                    services.AddHostedService<JobRunnerBackgroundTask>();
+                }
+                else
+                {
+                    Console.WriteLine("This instance will run as Slave");
+                    instanceService.RegisterInstance(false);
+                    services.AddHostedService<SelfRecoveryBackgroundTask>();
+                }                
             }
             else
             {

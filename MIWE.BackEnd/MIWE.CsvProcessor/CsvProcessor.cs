@@ -9,7 +9,6 @@ namespace MIWE.CsvProcessor
 {
     public class CsvProcessor : IProcess
     {
-        //TODO::specify as input the path   
         public bool ProcessData(string merchantName, IEnumerable<IProductData> products, Action<MemoryStream, string> saveAction = null)
         {
             try
@@ -20,7 +19,7 @@ namespace MIWE.CsvProcessor
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
                     csv.WriteRecords(products);
-
+                    writer.Flush();
                     if (saveAction != null)
                     {
                         saveAction.Invoke(memoryStream, ".csv");
