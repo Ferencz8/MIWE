@@ -18,6 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\MIWE.Core\MIWE.Core.csproj" />
     <ProjectReference Include="..\MIWE.Data\MIWE.Data.csproj" />
+    <ProjectReference Include="..\MIWE.EmagCrawler\MIWE.EmagCrawler.csproj" />
+    <ProjectReference Include="..\MIWE.MediaGalaxy\MIWE.MediaGalaxy.csproj" />
+    <ProjectReference Include="..\MIWE.OfficeShoes\MIWE.OfficeShoes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

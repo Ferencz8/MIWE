@@ -58,6 +58,8 @@ namespace MIWE.API.HostedServices
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    _logger.LogInformation("Running Jobs Started.");
+
                     await RunJobs(jobExecuter, instanceService, cancellationToken);
 
                     Thread.Sleep(TimeSpan.FromMinutes(1));

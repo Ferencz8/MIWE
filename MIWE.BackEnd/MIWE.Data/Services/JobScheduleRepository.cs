@@ -21,6 +21,9 @@ namespace MIWE.Data.Services
 LEFT JOIN JobSessions jss ON jss.EntityId = js.Id
 INNER JOIN (SELECT EntityId, MAX(DateStart) AS DateStart FROM JobSessions GROUP BY EntityId) jss2 ON jss2.EntityId = js.Id AND jss2.DateStart = jss.DateStart
 WHERE js.IsRunning = 0 
+UNION
+SELECT js.*, NULL as LastSessionDateStart FROM JobSchedules js
+WHERE (SELECT COUNT(*) FROM JobSessions WHERE EntityId = js.Id) = 0
 ");
 
             return results;

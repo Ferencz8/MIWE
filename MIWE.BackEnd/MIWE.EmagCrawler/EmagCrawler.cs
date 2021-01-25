@@ -1,5 +1,4 @@
-﻿using MIWE.Core;
-using MIWE.Core.Interfaces;
+﻿using MIWE.Core.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
@@ -15,6 +14,7 @@ namespace MIWE.EmagCrawler
 
         private bool _disposed = false;
         private ChromeDriver _driver;
+        private List<string> proxies;
         private List<EmagProduct> EmagProducts { get; set; }
         public CancellationToken CancellationToken { get; set; }
 
@@ -24,37 +24,102 @@ namespace MIWE.EmagCrawler
             EmagProducts = new List<EmagProduct>();
         }
 
-        private void Start()
+        private void SearchForProxies()
         {
-            ChromeOptions options = new ChromeOptions();
-            Proxy proxy= new Proxy();
-            proxy.SslProxy = "188.119.150.33:3128";
-            proxy.Kind = ProxyKind.Manual;
-            options.Proxy = proxy;
-            options.AddArgument("ignore-certificate-errors");
-            using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options))
-            {
+            //using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory))
+            //{
+            //    _driver.Navigate().GoToUrl("http://free-proxy.cz/en/proxylist/country/GB/all/ping/all");
 
-                _driver.Navigate().GoToUrl("https://www.emag.ro/televizoare/c?ref=hp_menu_quick-nav_190_1&type=category");
+            //    Thread.Sleep(2000);
+
+            //    var proxyIPs = _driver.FindElementsByXPath("//table[@id='proxy_list']/tbody/tr/td[1]")
+            //        .Where(n => !string.IsNullOrEmpty(n.Text))
+            //        .Select(n => n.Text)
+            //        .ToList();
+
+            //    var proxyPorts = _driver.FindElementsByXPath("//table[@id='proxy_list']/tbody/tr/td[2]")
+            //        .Where(n => !string.IsNullOrEmpty(n.Text))
+            //        .Select(n => n.Text)
+            //        .ToList();
+            //    proxies = new List<string>();
+            //    for (int i = 0; i < proxyIPs.Count; i++)
+            //    {
+            //        proxies.Add($"{proxyIPs[i]}:{proxyPorts[i]}");
+            //    }
+            //}
+            using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory))
+            {
+                _driver.Navigate().GoToUrl("http://www.freeproxylists.net/");
 
                 Thread.Sleep(2000);
 
-                _productLinks = _driver.FindElementsByXPath("//div[@id='card_grid']//a[contains(@class,'product-title')]")
-                                       .Where(n => !string.IsNullOrEmpty(n.GetAttribute("href")))
-                                       .Select(n => n.GetAttribute("href"))
-                                       .ToList();
+                var proxyIPs = _driver.FindElementsByXPath("//table[@class='DataGrid']//tr[@class='Odd']//a | //table[@class='DataGrid']//tr[@class='Even']//a")
+                    .Where(n => !string.IsNullOrEmpty(n.Text))
+                    .Select(n => n.Text)
+                    .ToList();
 
-                foreach (var link in _productLinks)
+                var proxyPorts = _driver.FindElementsByXPath("//table[@class='DataGrid']//tr[@class='Odd']/td[2] | //table[@class='DataGrid']//tr[@class='Even']/td[2]")
+                    .Where(n => !string.IsNullOrEmpty(n.Text))
+                    .Select(n => n.Text)
+                    .ToList();
+                proxies = new List<string>();
+                for (int i = 0; i < proxyIPs.Count; i++)
                 {
-                    try
+                    proxies.Add($"{proxyIPs[i]}:{proxyPorts[i]}");
+                }
+            }
+
+        
+            
+        }
+
+        private void Start()
+        {
+            SearchForProxies();
+            bool retryProxy = true;
+            for(int i=0;i<proxies.Count && retryProxy; i++)
+            {
+                try
+                {
+                    ChromeOptions options = new ChromeOptions();
+                    Proxy proxy = new Proxy();
+                    proxy.SslProxy = proxies[i];
+                    proxy.Kind = ProxyKind.Manual;
+                    options.Proxy = proxy;
+                    options.AddArgument("ignore-certificate-errors");
+                    using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options))
                     {
-                        var product = ParseLink(link);
-                        EmagProducts.Add(product);
+
+                        _driver.Navigate().GoToUrl("https://www.emag.ro/televizoare/c?ref=hp_menu_quick-nav_190_1&type=category");
+
+                        Thread.Sleep(2000);
+
+                        _productLinks = _driver.FindElementsByXPath("//div[@id='card_grid']//a[contains(@class,'product-title')]")
+                                               .Where(n => !string.IsNullOrEmpty(n.GetAttribute("href")))
+                                               .Select(n => n.GetAttribute("href"))
+                                               .ToList();
+                        if (_productLinks.Count() == 0)
+                            continue;
+                        foreach (var link in _productLinks)
+                        {
+                            try
+                            {
+                                var product = ParseLink(link);
+                                EmagProducts.Add(product);
+                            }
+                            catch (Exception ex)
+                            {
+                                //TODO:: log exception
+                            }
+                        }
                     }
-                    catch(Exception ex)
-                    {
-                        //TODO:: log exception
-                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex.Message.Contains("ERR_PROXY_CONNECTION_FAILED") || ex.Message.Contains("ERR_CONNECTION_RESET"))
+                        retryProxy = true;
+                    else
+                        retryProxy = false;
                 }
             }
         }
@@ -115,12 +180,12 @@ namespace MIWE.EmagCrawler
 
             if (disposing)
             {
-                if(_driver != null)
+                if (_driver != null)
                 {
                     _driver.Close();
                     _driver.Quit();
                     _driver.Dispose();
-                }                
+                }
             }
 
             _disposed = true;
