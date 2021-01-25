@@ -8,4 +8,7 @@
 **/Logs
 **/plugins
 *.zip
+MIWE.API/appsettings.json
 MIWE.BackEnd - Copy/
+
+MIWE.BackEnd/MIWE.API/appsettings.json

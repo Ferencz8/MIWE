@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MIWE.Common;
 using MIWE.Core.Interfaces;
 using MIWE.Data;
 using MIWE.Data.Entities;
@@ -6,7 +7,10 @@ using MIWE.Data.Services;
 using ProtoBuf.Grpc;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace MIWE.Core
@@ -28,13 +32,13 @@ namespace MIWE.Core
         {
             //check for CPU and mark availability
             _instanceService.CheckInstanceAvailability();
-
-            _jobExecuter.RunJob(_instanceService.GetCurrentInstanceId(), job.Id, job.PluginPath);
+            var localPath = PluginHelper.GetLocalPluginPath(job.Name, job.PluginPath, job.DateModified);
+            _jobExecuter.RunJob(_instanceService.GetCurrentInstanceId(), job.Id, localPath);
         }
 
         public void ReceiveJobSchedule(JobSchedule jobSchedule, CallContext callContext = default)
         {
-           // using (var scope = _serviceScopeFactory.CreateScope())
+            //using (var scope = _serviceScopeFactory.CreateScope())
             {
                 //check for CPU and mark availability
                 _instanceService.CheckInstanceAvailability();

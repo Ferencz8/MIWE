@@ -4,20 +4,85 @@ using MIWE.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MIWE.Data.Migrations
 {
     [DbContext(typeof(WorkerContext))]
-    partial class WorkerContextModelSnapshot : ModelSnapshot
+    [Migration("20210123123110_DateModified")]
+    partial class DateModified
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("MIWE.Data.Dtos.JobScheduleLastSessionDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastSessionDateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MainJob")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NextJobs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scheduling")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobScheduleLastSessionDto");
+                });
+
+            modelBuilder.Entity("MIWE.Data.Dtos.JobSchedulePipelineDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Pipeline")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scheduling")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobSchedulePipelineDto");
+                });
+
+            modelBuilder.Entity("MIWE.Data.Dtos.JobSessionDto", b =>
+                {
+                    b.Property<DateTime?>("DateEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Instance")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobPipeline")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResultContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobSessionDto");
+                });
 
             modelBuilder.Entity("MIWE.Data.Entities.JobSchedule", b =>
                 {
@@ -92,7 +157,7 @@ namespace MIWE.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OSType")
                         .HasColumnType("int");
@@ -105,9 +170,6 @@ namespace MIWE.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Jobs");
                 });

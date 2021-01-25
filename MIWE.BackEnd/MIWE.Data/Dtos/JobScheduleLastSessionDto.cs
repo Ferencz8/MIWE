@@ -19,6 +19,6 @@ namespace MIWE.Data.Dtos
 
         public bool IsRunning { get; set; }
 
-        public DateTime LastSessionDateStart { get; set; }
+        public DateTime? LastSessionDateStart { get; set; }
     }
 }

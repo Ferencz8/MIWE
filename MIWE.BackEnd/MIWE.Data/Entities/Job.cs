@@ -37,5 +37,8 @@ namespace MIWE.Data
 
         [ProtoMember(9, DataFormat = DataFormat.Default)]
         public string Description { get; set; }
+
+        [ProtoMember(10, DataFormat = DataFormat.Default)]
+        public DateTime? DateModified { get; set; }
     }
 }

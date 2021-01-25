@@ -28,7 +28,7 @@ namespace MIWE.EmagCrawler
         {
             ChromeOptions options = new ChromeOptions();
             Proxy proxy= new Proxy();
-            proxy.SslProxy = "79.115.245.227:8080";
+            proxy.SslProxy = "188.119.150.33:3128";
             proxy.Kind = ProxyKind.Manual;
             options.Proxy = proxy;
             options.AddArgument("ignore-certificate-errors");

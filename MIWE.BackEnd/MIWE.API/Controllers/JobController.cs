@@ -78,11 +78,11 @@ namespace MIWE.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status200OK)]
         [ProducesErrorResponseType(typeof(StatusCodeResult))]
-        public IActionResult Post([FromBody] Job scheduledJob)
+        public async Task<IActionResult> Post([FromBody] Job scheduledJob)
         {
             try
             {
-                var addedJobId = _jobService.Add(scheduledJob);
+                var addedJobId = await _jobService.Add(scheduledJob);
                 return Ok(addedJobId);
             }
             catch(Exception ex)

@@ -136,11 +136,14 @@ namespace MIWE.Core
                 //run the plugins
                 var mainJob = await _jobRepository.GetById(jobSchedule.MainJob);
 
+                //TODO:: check if plugins are locally present
+                var crawlerPluginPath = PluginHelper.GetLocalPluginPath(mainJob.Name, mainJob.PluginPath, mainJob.DateModified);
+                var processorPluginPath = PluginHelper.GetLocalPluginPath(jobs.FirstOrDefault().Name, jobs.FirstOrDefault().PluginPath, jobs.FirstOrDefault().DateModified);
                 bool result = _pluginRunner.Run(new PluginRunningParameters()
                 {
                     MerchantName = jobs.FirstOrDefault().Name,
-                    CrawlerPluginPath = GetCrawlPath(mainJob.PluginPath),
-                    ProcessorPluginPath = GetCrawlPath(jobs.FirstOrDefault().PluginPath),
+                    CrawlerPluginPath = crawlerPluginPath,//GetCrawlPath(mainJob.PluginPath),
+                    ProcessorPluginPath = processorPluginPath,//GetCrawlPath(jobs.FirstOrDefault().PluginPath),
                     ProcessorSaveAction = GetSaveProcessedActionData(jobSessionId)
                 }, cancellationToken);
 
@@ -181,6 +184,7 @@ namespace MIWE.Core
 
         private string GetCrawlPath(string pluginName)
         {
+            pluginName = pluginName.Split(@"/").Last().Split(@".zip").First();
             string dirPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.PluginFolder).Value);
             string pluginPath = Path.Combine(dirPath, pluginName);
             return pluginPath;

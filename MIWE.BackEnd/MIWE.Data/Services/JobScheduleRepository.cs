@@ -18,8 +18,9 @@ namespace MIWE.Data.Services
         public IEnumerable<JobScheduleLastSessionDto> GetJobsScheduledToRun()
         {
             var results = _dbContext.Set<JobScheduleLastSessionDto>().FromSqlRaw(@"SELECT js.*, jss.DateStart as LastSessionDateStart FROM JobSchedules js
-INNER JOIN JobSessions jss ON jss.EntityId = js.Id
-WHERE js.IsRunning = 0 AND jss.IsSuccess = 1
+LEFT JOIN JobSessions jss ON jss.EntityId = js.Id
+INNER JOIN (SELECT EntityId, MAX(DateStart) AS DateStart FROM JobSessions GROUP BY EntityId) jss2 ON jss2.EntityId = js.Id AND jss2.DateStart = jss.DateStart
+WHERE js.IsRunning = 0 
 ");
 
             return results;

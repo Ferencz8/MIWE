@@ -19,6 +19,7 @@ namespace MIWE.MercadoLivre
 
         public MercadoLivreCrawler()
         {
+            _htmlDocument = new HtmlDocument();
             _mercadoLivreProducts = new List<MercadoLivreProduct>();
             _productLinks = new List<string>();
         }

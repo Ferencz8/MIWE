@@ -28,15 +28,23 @@ namespace MIWE.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=DESKTOP-4VJUTBN;Database=Worker;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Server=tcp:miwe.database.windows.net,1433;Initial Catalog=Worker;Persist Security Info=False;User ID=feri;Password=Repeat44;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<JobSessionDto>().HasNoKey();
+            modelBuilder.Entity<JobSessionDto>().HasNoKey();            
             modelBuilder.Entity<JobScheduleLastSessionDto>().HasNoKey();
             modelBuilder.Entity<JobSchedulePipelineDto>().HasNoKey();
+
+
+            modelBuilder.Entity<Job>().HasIndex(n => n.Name).IsUnique();
+
+            //only for migration uncomment
+            //modelBuilder.Ignore<JobSessionDto>();
+            //modelBuilder.Ignore<JobScheduleLastSessionDto>();
+            //modelBuilder.Ignore<JobSchedulePipelineDto>();
         }
     }
 }

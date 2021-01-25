@@ -88,7 +88,8 @@ namespace MIWE.API.HostedServices
                             return;
 
                         GrpcClientFactory.AllowUnencryptedHttp2 = true;
-                        var channel = GrpcChannel.ForAddress($"https://localhost:8009");//ip
+                        //var channel = GrpcChannel.ForAddress($"https://localhost:8009");//ip
+                        var channel = GrpcChannel.ForAddress($"{ip}");
 
                         var jobReceiverService = channel.CreateGrpcService<IJobReceiver>();
                         jobReceiverService.ReceiveJobSchedule(jobSchedules.ElementAt(i));

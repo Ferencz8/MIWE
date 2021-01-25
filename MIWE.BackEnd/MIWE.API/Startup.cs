@@ -68,6 +68,7 @@ namespace MIWE.API
             services.AddScoped<IPluginRunner, PluginRunner>();
             services.AddScoped<IWorkloadAnalyzer, WorkloadAnalyzer>();
 
+            services.AddScoped<IAzureBlobRepository, AzureBlobRepository>();
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IJobSessionRepository, JobSessionRepository>();
             services.AddScoped<IJobScheduleRepository, JobScheduleRepository>();
