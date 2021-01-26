@@ -87,7 +87,7 @@ namespace MIWE.Core
             var job = _jobRepository.GetAll(n => !n.IsRunning && n.Id == jobId).FirstOrDefault();
             if (job == null)
             {
-                _logger.LogWarning($"No available job found for Id: {job}");
+                _logger.LogWarning($"No available job found for Id: {jobId}");
                 return;
             }
 

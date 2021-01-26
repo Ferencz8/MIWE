@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MIWE.Core.Interfaces;
 using MIWE.Data;
 
@@ -18,10 +19,12 @@ namespace MIWE.API.Controllers
     public class JobController : ControllerBase
     {
         private IJobService _jobService;
+        private ILogger _logger;
 
-        public JobController(IJobService jobService)
+        public JobController(IJobService jobService, ILogger<JobController> logger)
         {
             _jobService = jobService;
+            _logger = logger;
         }
 
         // GET: api/<JobsController>
@@ -120,6 +123,7 @@ namespace MIWE.API.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Failed to run job with id {jobId} with Msg: {ex.Message} and Stacktreace: {ex.StackTrace}", ex);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
