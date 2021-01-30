@@ -47,7 +47,7 @@ namespace MIWE.API
 
                  options.Limits.MinRequestBodyDataRate = null;
 
-                 options.ListenLocalhost(OpenedPort, listenOptions =>
+                 options.ListenAnyIP(OpenedPort, listenOptions =>
                  {
                      listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                      listenOptions.UseHttps(adapterOptions =>

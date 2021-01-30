@@ -61,7 +61,7 @@ namespace MIWE.API.HostedServices
                 var masterInstance = instanceService.GetMasterInstance();
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    bool isUP = await PoolMasterAvailability(masterInstance);
+                    bool isUP = await instanceService.PoolMasterAvailability(masterInstance);
                     if (!isUP) //masteer is down
                     {
                         _logger.LogInformation("Changing Master");
@@ -91,29 +91,6 @@ namespace MIWE.API.HostedServices
                     cancellationToken.ThrowIfCancellationRequested();
                 }
             }
-        }
-
-        private async Task<bool> PoolMasterAvailability(Instance masterInstance)
-        {
-            int failed = 0;
-            do
-            {
-                try
-                {
-                    using (HttpClient client = new HttpClient())
-                    {
-                        HttpResponseMessage response = await client.GetAsync($"{masterInstance.IP}/hc");
-                        response.EnsureSuccessStatusCode();
-                    }
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    failed++;
-                }
-            }
-            while (failed < 3);
-            return false;
         }
     }
 }
