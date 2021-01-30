@@ -12,16 +12,19 @@ using MIWE.Data.Services.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Microsoft.Extensions.Logging;
 
 namespace MIWE.Data.Services
 {
     public class InstanceService : IInstanceService
     {
         private IInstanceRepository _instanceRepository;
+        private ILogger<IInstanceService> _logger;
 
-        public InstanceService(IInstanceRepository instanceRepository)
+        public InstanceService(IInstanceRepository instanceRepository, ILogger<IInstanceService> logger)
         {
             _instanceRepository = instanceRepository;
+            _logger = logger;
         }
 
         public int GetCurrentInstanceId()
@@ -61,19 +64,19 @@ namespace MIWE.Data.Services
         {
             string currentIp = GetCurrentExternalIP();
             //instance exists
+            _logger.LogInformation($"Registering instance with IP: {currentIp}");
             var existingInstance = _instanceRepository.GetAll(n => n.IP == currentIp).FirstOrDefault();
             if (existingInstance != null)
             {
-                if (existingInstance.IsDown)
-                {
-                    existingInstance.IsDown = false;
-                    existingInstance.IsMaster = isMaster;
-                    await _instanceRepository.Update(existingInstance);
-                }
+
+                existingInstance.IsDown = false;
+                existingInstance.IsMaster = isMaster;
+                await _instanceRepository.Update(existingInstance);
+
                 return existingInstance.Id;
             }
             else
-            { 
+            {
                 //adding instance
                 var newInstance = await _instanceRepository.Create(new Instance()
                 {
@@ -94,10 +97,14 @@ namespace MIWE.Data.Services
                 externalIP = (new WebClient()).DownloadString("http://checkip.dyndns.org/");
                 externalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
                              .Matches(externalIP)[0].ToString();
-                if (externalIP.Contains("85.204.6.250")) return "https://localhost:8008";
+
+                if (externalIP.Contains("85.204.6.250"))
+                {
+                    return "https://localhost:8008";
+                }
+
                 return externalIP;
             }
-            //            catch { return "85.204.6.250"; }
             catch { return "https://localhost:8008"; }
         }
 

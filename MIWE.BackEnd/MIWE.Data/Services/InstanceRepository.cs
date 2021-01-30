@@ -66,7 +66,7 @@ END
 COMMIT TRANSACTION", currentId);
         }
 
-        public async Task ChangeMaster(int currentId)
+        public async Task ChangeMasterWithCurrentInstance(int currentId)
         {
             await _dbContext.Database.ExecuteSqlRawAsync(@"
 BEGIN TRANSACTION
@@ -76,6 +76,21 @@ WITH (TABLOCK, HOLDLOCK)
 WHERE IsMaster = 1
 UPDATE Instances SET IsMaster = 0, IsDown = 1 WHERE Id = @MasterInstanceId
 UPDATE Instances SET IsMaster = 1 WHERE Id = {0}
+COMMIT TRANSACTION", currentId);
+        }
+
+        public async Task MakeCurrentInstanceMaster(int currentId)
+        {
+            await _dbContext.Database.ExecuteSqlRawAsync(@"
+BEGIN TRANSACTION
+DECLARE @MasterInstanceId Integer
+SELECT @MasterInstanceId = Id FROM Instances 
+WITH (TABLOCK, HOLDLOCK)
+WHERE IsMaster = 1
+IF @MasterInstanceId IS NUll
+BEGIN
+	UPDATE Instances SET IsMaster = 1 WHERE Id = {0}
+END
 COMMIT TRANSACTION", currentId);
         }
     }

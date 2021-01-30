@@ -17,6 +17,8 @@ namespace MIWE.Data.Services.Interfaces
 
         Task<int> CheckOrChangeMaster(int currentId);
 
-        Task ChangeMaster(int currentId);
+        Task ChangeMasterWithCurrentInstance(int currentId);
+
+        Task MakeCurrentInstanceMaster(int currentId);
     }
 }

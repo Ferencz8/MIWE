@@ -58,28 +58,37 @@ namespace MIWE.API.HostedServices
                 var instanceService = scopedServices.GetRequiredService<IInstanceService>();
                 var instanceRepo = scopedServices.GetRequiredService<IInstanceRepository>();
                 int currentId = instanceService.GetCurrentInstanceId();
-                var masterInstance = instanceService.GetMasterInstance();
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    bool isUP = await instanceService.PoolMasterAvailability(masterInstance);
-                    if (!isUP) //masteer is down
+
+                    var masterInstance = instanceService.GetMasterInstance();
+                    if (masterInstance == null)
                     {
-                        _logger.LogInformation("Changing Master");
-
-                        await instanceRepo.ChangeMaster(currentId);
-
-                        await _jobRunnerBackgroundTask.StartAsync(new CancellationToken());
-                        
-                        break;
+                        _logger.LogInformation("Try make current instance Master");
+                        await instanceRepo.MakeCurrentInstanceMaster(currentId);
                     }
                     else
                     {
-                        var result = await instanceRepo.CheckOrChangeMaster(currentId);
-                        if(result >= 1) // master is down and was changed already
+                        bool isUP = await instanceService.PoolMasterAvailability(masterInstance);
+                        if (!isUP) //masteer is down
                         {
-                            _logger.LogInformation("Master Changed");
+                            _logger.LogInformation("Changing Master");
+
+                            await instanceRepo.ChangeMasterWithCurrentInstance(currentId);
 
                             await _jobRunnerBackgroundTask.StartAsync(new CancellationToken());
+
+                            break;
+                        }
+                        else
+                        {
+                            var result = await instanceRepo.CheckOrChangeMaster(currentId);
+                            if (result >= 1) // master is down and was changed already
+                            {
+                                _logger.LogInformation("Master Changed");
+
+                                await _jobRunnerBackgroundTask.StartAsync(new CancellationToken());
+                            }
                         }
                     }
 
