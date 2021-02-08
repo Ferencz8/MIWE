@@ -5,7 +5,7 @@ Work In Progress
 The execution of the crawling & data processing plugins can be scheduled using Quartz CRON expressions.
 
 
-Once launched the Work Executer registers it’s IP in a central database.
+Once launched the Work Executer registers it’s IP in an MS-SQL database.
 Multiple Instances can be launched, which can interact and load/offload work on each other using **gRPC communication**
 The main Instance which is launched will register as the "Master" Instance, if no other "Master" instance is available. The next instances will register as "Slave".
 The Master instance runs and/or distributes the workload among registered and available Slave instances.
