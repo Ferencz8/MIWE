@@ -14,7 +14,7 @@ The Slave instance receives work to execute and constantly checks to see if the 
 
 ![High Level Architecture](https://github.com/Ferencz8/MIWE/blob/main/Diagrams/workerDiagram.png)
 
-##Platform Presentation
+## Platform Presentation
 ![Add a Job Plugin](https://github.com/Ferencz8/MIWE/blob/main/Diagrams/addJob.PNG)
 ![Edit a Job Scheduling](https://github.com/Ferencz8/MIWE/blob/main/Diagrams/editJob.PNG)
 ![Job Listing](https://github.com/Ferencz8/MIWE/blob/main/Diagrams/jobs.PNG)
