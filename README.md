@@ -11,7 +11,7 @@ The main Instance which is launched will register as the "Master" Instance, if n
 The Master instance runs and/or distributes the workload among registered and available Slave instances.
 The Slave instance receives work to execute and constantly checks to see if the Master is available to take it's place in case it isn't.
 
-
+## High Level Architecture
 ![High Level Architecture](https://github.com/Ferencz8/MIWE/blob/main/Diagrams/workerDiagram.png)
 
 ## Platform Presentation
