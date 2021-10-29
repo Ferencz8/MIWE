@@ -18,9 +18,13 @@ namespace MIWE.Imobiliare
     public class ImobiliareCrawler : ICrawl
     {
 
-        private string Url = "http://www.imobiliare.ro/vanzare-garsoniere/brasov?pagina={0}";
-        private List<ImobiliareProduct> _imobiliareProducts = new List<ImobiliareProduct>();
-        private List<string> _productLinks  = new List<string>();
+        private Dictionary<string, string> CityUrls = new Dictionary<string, string> {
+            {"Brasov", "http://www.imobiliare.ro/vanzare-garsoniere/brasov?pagina={0}" },
+            {"Bucuresti-Garsoniera", "https://www.imobiliare.ro/vanzare-garsoniere/bucuresti?pagina={0}" },
+            {"Bucuresti-2camere", "https://www.imobiliare.ro/vanzare-apartamente/bucuresti?nrcamere=2" }
+        };
+        private Dictionary<string, List<ImobiliareProduct>> _imobiliareProducts = new Dictionary<string, List<ImobiliareProduct>>();
+        private List<string> _productLinks = new List<string>();
         private HtmlDocument _htmlDocument = new HtmlDocument();
         private List<Proxy> proxies = new List<Proxy>();
         private Proxy ActiveProxyIP;
@@ -102,7 +106,7 @@ namespace MIWE.Imobiliare
             {
                 AllowAutoRedirect = true,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-              
+
             };
             HttpClient client = new HttpClient(clientHandler);
             return client;
@@ -111,67 +115,78 @@ namespace MIWE.Imobiliare
 
         private async Task Start()
         {
-            int pageCount = 0;
-            int pageTotal = 0;
-            bool isPageTotalExtracted = false;
-            bool isScrapingFinished = false;
-            //GetProxies();
 
-            while (!isScrapingFinished)
+            foreach (var cityUrl in CityUrls)
             {
-                try
+                int pageCount = 0;
+                int pageTotal = 0;
+                bool isPageTotalExtracted = false;
+                bool isScrapingFinished = false;
+                //GetProxies();
+                List<ImobiliareProduct> products = new List<ImobiliareProduct>();
+                while (!isScrapingFinished)
                 {
-                    var client = GetHttpClient();
-
-                    do
+                    try
                     {
-                        HttpResponseMessage result = client.GetAsync(string.Format(Url, pageCount)).Result;
-                        var sr = new StreamReader(await result.Content.ReadAsStreamAsync(), Encoding.GetEncoding("iso-8859-1"));
-                        
-                            var content = sr.ReadToEnd();
-                        
-                    
-                        _htmlDocument.LoadHtml(content);
+                        var client = GetHttpClient();
 
-                        var anouncements = _htmlDocument.DocumentNode.SelectNodes("//div[@itemtype='http://schema.org/Offer']");
-
-                        GetTotalNumberOfPages(ref pageTotal, ref isPageTotalExtracted);
-
-                        foreach (var anouncement in anouncements)
+                        do
                         {
-                            if (CancellationToken != null && CancellationToken.IsCancellationRequested)
+                            HttpResponseMessage result = client.GetAsync(string.Format(cityUrl.Value, pageCount)).Result;
+                            var sr = new StreamReader(await result.Content.ReadAsStreamAsync(), Encoding.GetEncoding("iso-8859-1"));
+
+                            var content = sr.ReadToEnd();
+
+
+                            _htmlDocument.LoadHtml(content);
+
+                            var anouncements = _htmlDocument.DocumentNode.SelectNodes("//div[@itemtype='http://schema.org/Offer']");
+
+                            GetTotalNumberOfPages(ref pageTotal, ref isPageTotalExtracted);
+
+                            foreach (var anouncement in anouncements)
                             {
-                                CancellationToken.ThrowIfCancellationRequested();
+                                if (CancellationToken != null && CancellationToken.IsCancellationRequested)
+                                {
+                                    CancellationToken.ThrowIfCancellationRequested();
+                                }
+
+
+                                //check in db if the annoucement exists already by multiple ids and date published
+                                string anouncementUrl = anouncement.SelectSingleNode("//a[@itemprop='name']").GetAttributeValue("href", string.Empty);
+                                if (!string.IsNullOrEmpty(anouncementUrl))
+                                {
+                                    var anouncementContent = await client.GetStringAsync(anouncementUrl);
+
+                                    ImobiliareProduct productData = ParseAnouncement(anouncementContent);
+                                    productData.Url = anouncementUrl;
+                                    products.Add(productData);
+                                }
+
+                                _productLinks.Add(anouncementUrl);
+
+                                //Thread.Sleep(TimeSpan.FromSeconds(2);)
                             }
+                            break;
+                        } while (pageCount <= pageTotal);
 
-
-                            //check in db if the annoucement exists already by multiple ids and date published
-                            string anouncementUrl = anouncement.SelectSingleNode("//a[@itemprop='name']").GetAttributeValue("href", string.Empty);
-                            if (!string.IsNullOrEmpty(anouncementUrl))
-                            {
-                                var anouncementContent = await client.GetStringAsync(anouncementUrl);
-
-                                ImobiliareProduct productData = ParseAnouncement(anouncementContent);
-                                _imobiliareProducts.Add(productData);
-                            }
-
-                            _productLinks.Add(anouncementUrl);
-                        }
-                    } while (pageCount <= pageTotal);
-                    
-                    isScrapingFinished = true;
+                        isScrapingFinished = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        //if (ex.Message.Contains("403"))
+                        //{
+                        //    ActiveProxyIP.FailCount++;
+                        //}
+                    }
                 }
-                catch (Exception ex)
-                {
-                    //if (ex.Message.Contains("403"))
-                    //{
-                    //    ActiveProxyIP.FailCount++;
-                    //}
-                }
+
+                _imobiliareProducts.Add(cityUrl.Key, products);
             }
 
             string json = JsonConvert.SerializeObject(_imobiliareProducts);
-            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory() , "imobiliare.json"), json);
+            string fileName = $"imobiliare{DateTime.UtcNow.ToString("dd.MM.yyyy")}.json";
+            File.WriteAllText($"{Path.Combine(Directory.GetCurrentDirectory(), fileName)}", json);
         }
 
         private void GetTotalNumberOfPages(ref int pageTotal, ref bool isPageTotalExtracted)
@@ -194,38 +209,45 @@ namespace MIWE.Imobiliare
             product.Area = htmlNode.SelectSingleNode("//div[@id='content-detalii']//div[@class='titlu']/div")?.InnerText;
             product.Price = htmlNode.SelectSingleNode("//div[@id='box-prezentare']//div[@class='pret first blue']")?.InnerText;
             var images = htmlNode.SelectNodes("//li[@class='imagine']//a");
-            List<string> imageUrls = new List<string>();
-            foreach (var image in images)
+            if (images != null)
             {
-                string imagehref = image.GetAttributeValue("href", string.Empty);
-                if (!string.IsNullOrEmpty(imagehref))
+                List<string> imageUrls = new List<string>();
+                foreach (var image in images)
                 {
-                    imageUrls.Add(imagehref);
+                    string imagehref = image.GetAttributeValue("href", string.Empty);
+                    if (!string.IsNullOrEmpty(imagehref))
+                    {
+                        imageUrls.Add(imagehref);
+                    }
                 }
+                product.Images = imageUrls;
             }
-            product.Images = imageUrls;
             product.Details = htmlNode.SelectSingleNode("//div[@id='b_detalii_text']//p")?.InnerText;
 
             string lastActualized = htmlNode.SelectSingleNode("//div[@id='content-detalii']//span[@class='data-actualizare']")?.InnerText;
-            lastActualized = lastActualized.Replace("Actualizat &#238;n", string.Empty);
+            lastActualized = lastActualized?.Replace("Actualizat &#238;n", string.Empty);
             ///product.LastPublished = DateTime.Parse(lastActualized.Trim());
-            product.LastPublished = lastActualized.Trim();
+            product.LastPublished = lastActualized?.Trim();
             var characteristicsLeft = htmlNode.SelectNodes("//ul[@class='lista-tabelara']/li");
-            foreach (var characteristic in characteristicsLeft)
+            if (characteristicsLeft != null)
             {
-                if (characteristic.InnerText.Contains("Nr. camere"))
+                foreach (var characteristic in characteristicsLeft)
                 {
-                    string nrCamere = characteristic.InnerText.Replace("Nr. camere:", string.Empty).Trim();
-                    product.Caracteristici.NrCamere = int.Parse(nrCamere);
-                }
-                else if (characteristic.InnerText.Contains("Suprafaţă utilă:"))
-                {
-                    string supUtila = characteristic.InnerText.Replace("Suprafaţă utilă:", string.Empty).Replace("mp", "").Trim();
-                    product.Caracteristici.SuprafataUtila = int.Parse(supUtila);
+                    if (characteristic.InnerText.Contains("Nr. camere"))
+                    {
+                        string nrCamere = characteristic.InnerText.Replace("Nr. camere:", string.Empty).Trim();
+                        product.Caracteristici.NrCamere = int.Parse(nrCamere);
+                    }
+                    else if (characteristic.InnerText.Contains("Suprafaţă utilă:"))
+                    {
+                        string supUtila = characteristic.InnerText.Replace("Suprafaţă utilă:", string.Empty).Replace("mp", "").Trim();
+                        product.Caracteristici.SuprafataUtila = int.Parse(supUtila);
+                    }
                 }
             }
             var characteristicsRight = htmlNode.SelectNodes("//ul[@class='lista-tabelara mobile-list']/li");
             product.Specificatii = htmlNode.SelectSingleNode("//div[@id='b_detalii_specificatii']")?.InnerText;
+
             return product;
         }
 
