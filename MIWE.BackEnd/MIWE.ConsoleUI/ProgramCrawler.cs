@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MIWE.Imobiliare;
 using MIWE.OfficeShoes;
 
 namespace MIWE.ConsoleUI
@@ -9,8 +10,13 @@ namespace MIWE.ConsoleUI
     {
         static void Main(string[] args)
         {
-            var crawler = new OfficeShoesCrawler();
+        //    var crawler = new OfficeShoesCrawler();
+        //    crawler.ScrapeData();
+
+            var crawler = new ImobiliareCrawler();
             crawler.ScrapeData();
+
+            Console.ReadKey();
         }
     }
 }

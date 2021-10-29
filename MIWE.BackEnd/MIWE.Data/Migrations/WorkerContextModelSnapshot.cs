@@ -19,6 +19,69 @@ namespace MIWE.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("MIWE.Data.Dtos.JobScheduleLastSessionDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastSessionDateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MainJob")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NextJobs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scheduling")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobScheduleLastSessionDto");
+                });
+
+            modelBuilder.Entity("MIWE.Data.Dtos.JobSchedulePipelineDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Pipeline")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scheduling")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobSchedulePipelineDto");
+                });
+
+            modelBuilder.Entity("MIWE.Data.Dtos.JobSessionDto", b =>
+                {
+                    b.Property<DateTime?>("DateEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Instance")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSuccess")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobPipeline")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResultContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("JobSessionDto");
+                });
+
             modelBuilder.Entity("MIWE.Data.Entities.JobSchedule", b =>
                 {
                     b.Property<Guid>("Id")

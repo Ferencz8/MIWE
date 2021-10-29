@@ -28,7 +28,8 @@ namespace MIWE.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=tcp:miwe.database.windows.net,1433;Initial Catalog=Worker;Persist Security Info=False;User ID=feri;Password=Repeat44;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            //optionsBuilder.UseSqlServer(@"Server=tcp:miwe.database.windows.net,1433;Initial Catalog=Worker;Persist Security Info=False;User ID=feri;Password=Repeat44;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(@"Server=DESKTOP-4VJUTBN;Database=Worker;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
