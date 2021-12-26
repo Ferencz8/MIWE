@@ -80,19 +80,9 @@ namespace MIWE.Core
 
         public async Task RunJob(int instanceId, Guid jobId, string crawlPath, CancellationToken? cancellationToken = null)
         {
-            //register in db
-            var addedEntity = await _jobSessionRepository.Create(new JobSession()
-            {
-                DateStart = DateTime.UtcNow,
-                InstanceId = instanceId,
-                EntityId = jobId
-            });
-
-            Guid addedSessionId = addedEntity.Id;
-
             var job = await _jobRepository.GetById(jobId);
-            job.IsRunning = true;
-            await _jobRepository.Update(job);
+            //register in db
+            Guid addedSessionId = await StartSession(instanceId, job);
 
             //string dirPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "plugins");
             //pluginRunner.Run(Path.Combine(dirPath, "EmagCrawler\\netcoreapp3.1\\DemoPlugin.EmagCrawler.dll"));
@@ -100,6 +90,34 @@ namespace MIWE.Core
             bool result = _pluginRunner.Run(Path.Combine(dirPath, crawlPath), cancellationToken);
 
             //update in db completed
+            await EndSession(jobId, addedSessionId, result);
+        }
+
+        public async Task RunJobWithCsvProcessor(int instanceId, Guid jobId, string crawlPath, CancellationToken? cancellationToken = null)
+        {
+
+            var job = await _jobRepository.GetById(jobId);
+            //register in db
+            Guid addedSessionId = await StartSession(instanceId, job);
+
+            string dirPath = Path.Combine(Directory.GetCurrentDirectory(), _configuration.GetSection(Constants.PluginFolder).Value);
+            var crawlerPluginPath = Path.Combine(dirPath, crawlPath);
+            var processorPluginPath = _configuration.GetSection(Constants.CsvProcessorPath).Value;
+
+            var result = _pluginRunner.Run(new PluginRunningParameters()
+            {
+                MerchantName = job.Name,
+                CrawlerPluginPath = crawlerPluginPath,
+                ProcessorPluginPath = processorPluginPath,
+                ProcessorSaveAction = GetSaveProcessedActionData(addedSessionId)
+            }, cancellationToken);
+
+            //update in db completed
+            await EndSession(jobId, addedSessionId, result);
+        }
+
+        private async Task EndSession(Guid jobId, Guid addedSessionId, bool result)
+        {
             var ranJobSession = await _jobSessionRepository.GetById(addedSessionId);
             ranJobSession.DateEnd = DateTime.UtcNow;
             ranJobSession.IsSuccess = result;
@@ -108,6 +126,24 @@ namespace MIWE.Core
             var ranJob = await _jobRepository.GetById(jobId);
             ranJob.IsRunning = false;
             await _jobRepository.Update(ranJob);
+        }
+
+        private async Task<Guid> StartSession(int instanceId, Job job)
+        {
+            var addedEntity = await _jobSessionRepository.Create(new JobSession()
+            {
+                DateStart = DateTime.UtcNow,
+                InstanceId = instanceId,
+                EntityId = job.Id
+            });
+
+            Guid addedSessionId = addedEntity.Id;
+
+
+            job.IsRunning = true;
+            await _jobRepository.Update(job);
+
+            return addedSessionId;
         }
 
         public async Task RunScheduledJob(int instanceId, Guid jobScheduleId, CancellationToken? cancellationToken = null)

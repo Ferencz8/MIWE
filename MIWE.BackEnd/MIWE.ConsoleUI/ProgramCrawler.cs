@@ -10,11 +10,14 @@ namespace MIWE.ConsoleUI
     {
         static void Main(string[] args)
         {
-        //    var crawler = new OfficeShoesCrawler();
-        //    crawler.ScrapeData();
+            //    var crawler = new OfficeShoesCrawler();
+            //    crawler.ScrapeData();
 
-            var crawler = new ImobiliareCrawler();
+            var crawler = new Emag.EmagCrawler();
             crawler.ScrapeData();
+
+            //var crawler = new ImobiliareCrawler();
+            //crawler.ScrapeData();
 
             Console.ReadKey();
         }

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.Core", "MIWE.Core\MIWE.Core.csproj", "{A0DF0061-FA53-4E59-9349-7E55E01B24BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.EmagCrawler", "MIWE.EmagCrawler\MIWE.EmagCrawler.csproj", "{94033736-3D22-4EAB-9573-7E84750EEADD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.Emag", "MIWE.EmagCrawler\MIWE.Emag.csproj", "{94033736-3D22-4EAB-9573-7E84750EEADD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.Data", "MIWE.Data\MIWE.Data.csproj", "{1BD87478-B4A5-40FD-973F-6E0CD2559886}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.MediaGalaxy", "MIWE.Me
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.OfficeShoes", "MIWE.OfficeShoes\MIWE.OfficeShoes.csproj", "{3D15A1CA-9739-4CEF-BC6E-54DC371B8884}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIWE.Imobiliare", "MIWE.Imobiliare\MIWE.Imobiliare.csproj", "{0F3E57A3-1633-4B58-B22C-8895FACEBDDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIWE.Imobiliare", "MIWE.Imobiliare\MIWE.Imobiliare.csproj", "{0F3E57A3-1633-4B58-B22C-8895FACEBDDD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

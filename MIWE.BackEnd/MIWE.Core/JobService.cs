@@ -102,7 +102,8 @@ namespace MIWE.Core
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var jobExecuterService = scope.ServiceProvider.GetRequiredService<IJobExecuter>();
-                        await jobExecuterService.RunJob(instanceId.Value, jobId, crawlPath, token);
+                        //await jobExecuterService.RunJob(instanceId.Value, jobId, crawlPath, token);
+                        await jobExecuterService.RunJobWithCsvProcessor(instanceId.Value, jobId, crawlPath, token);
 
                         tokenSource.Dispose();
 
@@ -181,34 +182,41 @@ namespace MIWE.Core
 
         public async Task<string> UploadFile(IFormFile file, string name)
         {
-            // create plugins directory 
-            string pluginsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
-            if (!Directory.Exists(pluginsDirectory))
+            try
             {
-                Directory.CreateDirectory(pluginsDirectory);
-            }
+                // create plugins directory 
+                string pluginsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
+                if (!Directory.Exists(pluginsDirectory))
+                {
+                    Directory.CreateDirectory(pluginsDirectory);
+                }
 
-            string azurePath = string.Empty;
-            // save file
-            var path = Path.Combine(pluginsDirectory, file.FileName);
-            using (var stream = new FileStream(path, FileMode.Create))
+                string azurePath = string.Empty;
+                // save file
+                var path = Path.Combine(pluginsDirectory, file.FileName);
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+
+                    stream.Seek(0, SeekOrigin.Begin);
+
+                    azurePath = await _azureBlobRepository.UploadAsync(file.FileName, stream);// save to azure also
+                }
+
+                //string finalPath = path;
+                //if (file.ContentType.Contains("zip"))
+                //{
+                //    finalPath = PluginHelper.ExtractArchive(name, pluginsDirectory, path);
+                //}
+                                
+                //now get the path where the dll
+                return $"{azurePath}";
+            }
+            catch(Exception exception)
             {
-                await file.CopyToAsync(stream);
-
-                stream.Seek(0, SeekOrigin.Begin);
-
-                azurePath = await _azureBlobRepository.UploadAsync(file.FileName, stream);// save to azure also
+                _logger.LogError($"Failed to upload file with name {name}", exception);
+                throw;
             }
-
-            string finalPath = path;
-            if (file.ContentType.Contains("zip"))
-            {
-                finalPath = PluginHelper.ExtractArchive(name, pluginsDirectory, path);
-            }
-
-
-            //now get the path where the dll
-            return $"{azurePath}";
         }
 
         //private string ExtractArchive(string name, string pluginsDirectory, string path)

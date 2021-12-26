@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MIWE.EmagCrawler
+namespace MIWE.Emag
 {
     public class EmagCrawler : ICrawl
     {
@@ -68,16 +68,13 @@ namespace MIWE.EmagCrawler
                     proxies.Add($"{proxyIPs[i]}:{proxyPorts[i]}");
                 }
             }
-
-        
-            
         }
 
-        private void Start()
+        private void StartWithProxies()
         {
             SearchForProxies();
             bool retryProxy = true;
-            for(int i=0;i<proxies.Count && retryProxy; i++)
+            for (int i = 0; i < proxies.Count && retryProxy; i++)
             {
                 try
                 {
@@ -121,6 +118,39 @@ namespace MIWE.EmagCrawler
                     else
                         retryProxy = false;
                 }
+            }
+        }
+
+        private void Start()
+        {
+
+            try
+            {
+                ChromeOptions options = new ChromeOptions();                
+                options.AddArgument("ignore-certificate-errors");
+                using (_driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options))
+                {
+
+                    _driver.Navigate().GoToUrl("https://www.emag.ro/televizoare/c?ref=hp_menu_quick-nav_190_1&type=category");
+
+                    Thread.Sleep(2000);
+
+                    _productLinks = _driver.FindElementsByXPath("//div[@id='card_grid']//div[@class='card-v2-info']/a[contains(@class,'js-product-url')]")
+                                           .Where(n => !string.IsNullOrEmpty(n.GetAttribute("href")))
+                                           .Select(n => n.GetAttribute("href"))
+                                           .ToList()
+                                           .Take(10);
+
+                    foreach (var link in _productLinks)
+                    {
+                        Thread.Sleep(2000);
+                        var product = ParseLink(link);
+                        EmagProducts.Add(product);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
             }
         }
 

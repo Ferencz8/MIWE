@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Programming\GitHub\MIWE\MIWE.BackEnd\MIWE.API\MIWE.API.xml</DocumentationFile>
+    <DocumentationFile>C:\Work\Github\MIWE\MIWE.BackEnd\MIWE.API\MIWE.API.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Programming\GitHub\MIWE\MIWE.BackEnd\MIWE.API\MIWE.API.xml</DocumentationFile>
+    <DocumentationFile>C:\Work\Github\MIWE\MIWE.BackEnd\MIWE.API\MIWE.API.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

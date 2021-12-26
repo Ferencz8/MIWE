@@ -17,6 +17,8 @@ namespace MIWE.Core.Interfaces
 
         Task RunJob(int instanceId, Guid jobId, string crawlPath, CancellationToken? cancellationToken = null);
 
+        Task RunJobWithCsvProcessor(int instanceId, Guid jobId, string crawlPath, CancellationToken? cancellationToken = null);
+
         Task RunScheduledJob(int instanceId, Guid jobScheduleId, CancellationToken? cancellationToken = null);
     }
 }

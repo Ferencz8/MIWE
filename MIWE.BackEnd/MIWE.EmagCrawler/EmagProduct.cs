@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MIWE.EmagCrawler
+namespace MIWE.Emag
 {
     public class EmagProduct : IProductData
     {

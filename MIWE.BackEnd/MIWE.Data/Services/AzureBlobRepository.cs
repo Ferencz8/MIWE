@@ -12,15 +12,16 @@ namespace MIWE.Data.Services
     public class AzureBlobRepository : IAzureBlobRepository
     {
         private IConfiguration _configuration;
+        private string _connectionString;
         public AzureBlobRepository(IConfiguration configuration)
         {
             _configuration = configuration;
+            _connectionString = _configuration.GetSection("AzureConnString").Value; ;
         }
 
         public async Task DownloadAsync(string blobName, string destinationPath)
         {
-            string connectionString = _configuration.GetSection("AzureConnString").Value;
-            BlobContainerClient container = new BlobContainerClient(connectionString, "plugins");
+            BlobContainerClient container = new BlobContainerClient(_connectionString, "plugins");
             await container.CreateIfNotExistsAsync();
             // Get a reference to a blob
             BlobClient blob = container.GetBlobClient(blobName);
@@ -34,8 +35,7 @@ namespace MIWE.Data.Services
 
         public async Task<string> UploadAsync(string blobName, string filePath, bool overwrite = true)
         {
-            string connectionString = _configuration.GetSection("AzureConnString").Value;
-            BlobContainerClient container = new BlobContainerClient(connectionString, "plugins");
+            BlobContainerClient container = new BlobContainerClient(_connectionString, "plugins");
             await container.CreateIfNotExistsAsync();
 
             // Get a reference to a blob
@@ -54,8 +54,7 @@ namespace MIWE.Data.Services
 
         public async Task<string> UploadAsync(string blobName, Stream content, bool overwrite = true)
         {
-            string connectionString = _configuration.GetSection("AzureConnString").Value;
-            BlobContainerClient container = new BlobContainerClient(connectionString, "plugins");
+            BlobContainerClient container = new BlobContainerClient(_connectionString, "plugins");
             await container.CreateIfNotExistsAsync();
 
             // Get a reference to a blob

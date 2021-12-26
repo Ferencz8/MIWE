@@ -11,5 +11,7 @@ namespace MIWE.Common
         public const string ProcessedDataFolder = "ProcessedDataFolder";
 
         public const string PluginFolder = "PluginFolder";
+
+        public const string CsvProcessorPath = "CsvProcessorPath";
     }
 }
