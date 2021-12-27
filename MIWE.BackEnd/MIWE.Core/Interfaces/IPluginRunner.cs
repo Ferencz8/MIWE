@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MIWE.Core.Interfaces
 {
@@ -12,6 +13,6 @@ namespace MIWE.Core.Interfaces
 
         //bool Run(string crawlerPluginPath, string processorPluginPath = null, string merchantName = null);
 
-        bool Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken);
+        Task<bool> Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken);
     }
 }

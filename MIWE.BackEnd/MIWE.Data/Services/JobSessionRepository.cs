@@ -4,6 +4,7 @@ using MIWE.Data.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MIWE.Data.Services
 {
@@ -13,6 +14,11 @@ namespace MIWE.Data.Services
         public JobSessionRepository(WorkerContext context) : base(context)
         {
 
+        }
+
+        public async Task<int> GetJobSessionsCount()
+        {
+            return await _dbContext.JobSessions.CountAsync();
         }
 
         public IEnumerable<JobSessionDto> GetJobSessionDtos()

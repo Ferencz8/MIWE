@@ -33,6 +33,11 @@ namespace MIWE.Data.Services
             }
         }
 
+        public async Task<string> UploadImageAsync(string blobName, Stream content, bool overwrite = true)
+        {
+            return await UploadAsync("images", blobName, content, overwrite);
+        }
+
         public async Task<string> UploadAsync(string blobName, string filePath, bool overwrite = true)
         {
             BlobContainerClient container = new BlobContainerClient(_connectionString, "plugins");
@@ -52,9 +57,14 @@ namespace MIWE.Data.Services
             return blob.Uri.AbsoluteUri;
         }
 
-        public async Task<string> UploadAsync(string blobName, Stream content, bool overwrite = true)
+        public async Task<string> UploadPluginAsync(string blobName, Stream content, bool overwrite = true)
         {
-            BlobContainerClient container = new BlobContainerClient(_connectionString, "plugins");
+            return await UploadAsync("plugins", blobName, content, overwrite);
+        }
+
+        public async Task<string> UploadAsync(string containerName, string blobName, Stream content, bool overwrite = true)
+        {
+            BlobContainerClient container = new BlobContainerClient(_connectionString, containerName);
             await container.CreateIfNotExistsAsync();
 
             // Get a reference to a blob

@@ -31,6 +31,12 @@ namespace MIWE.API.Controllers
             return _jobSessionRepository.GetJobSessionDtos();
         }
 
+        [HttpGet("[action]")]
+        public async Task<int> GetCount()
+        {
+            return await _jobSessionRepository.GetJobSessionsCount();
+        }
+
         [HttpGet("[action]/{sessionId}")]
         public async Task<ActionResult> DownloadResult(Guid sessionId)
         {

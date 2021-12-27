@@ -26,6 +26,8 @@ namespace MIWE.Data
 
         public DbSet<Instance> Instances { get; set; }
 
+        public DbSet<Product> Products { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlServer(@"Server=tcp:miwe.database.windows.net,1433;Initial Catalog=Worker;Persist Security Info=False;User ID=feri;Password=Repeat44;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");

@@ -104,7 +104,7 @@ namespace MIWE.Core
             var crawlerPluginPath = Path.Combine(dirPath, crawlPath);
             var processorPluginPath = _configuration.GetSection(Constants.CsvProcessorPath).Value;
 
-            var result = _pluginRunner.Run(new PluginRunningParameters()
+            var result = await _pluginRunner.Run(new PluginRunningParameters()
             {
                 MerchantName = job.Name,
                 CrawlerPluginPath = crawlerPluginPath,
@@ -177,7 +177,7 @@ namespace MIWE.Core
                 //TODO:: check if plugins are locally present
                 var crawlerPluginPath = PluginHelper.GetLocalPluginPath(mainJob.Name, mainJob.PluginPath, mainJob.DateModified);
                 var processorPluginPath = PluginHelper.GetLocalPluginPath(jobs.FirstOrDefault().Name, jobs.FirstOrDefault().PluginPath, jobs.FirstOrDefault().DateModified);
-                result = _pluginRunner.Run(new PluginRunningParameters()
+                result = await _pluginRunner.Run(new PluginRunningParameters()
                 {
                     MerchantName = jobs.FirstOrDefault().Name,
                     CrawlerPluginPath = crawlerPluginPath,//GetCrawlPath(mainJob.PluginPath),

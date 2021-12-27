@@ -4,14 +4,16 @@ using MIWE.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MIWE.Data.Migrations
 {
     [DbContext(typeof(WorkerContext))]
-    partial class WorkerContextModelSnapshot : ModelSnapshot
+    [Migration("20211227202820_ProductTbl")]
+    partial class ProductTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

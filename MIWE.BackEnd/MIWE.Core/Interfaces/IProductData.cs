@@ -10,5 +10,11 @@ namespace MIWE.Core.Interfaces
         string Name { get; set; }
 
         string Price { get; set; }
+
+        string Availability { get; set; }
+
+        string Url { get; set; }
+
+        string ImageUrl { get; set; }
     }
 }

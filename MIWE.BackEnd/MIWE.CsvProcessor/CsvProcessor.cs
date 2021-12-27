@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MIWE.CsvProcessor
 {
     public class CsvProcessor : IProcess
     {
-        public bool ProcessData(string merchantName, IEnumerable<IProductData> products, Action<MemoryStream, string> saveAction = null)
+        public Task<bool> ProcessData(string merchantName, IEnumerable<IProductData> products, Action<MemoryStream, string> saveAction = null)
         {
             try
             {
@@ -25,10 +26,11 @@ namespace MIWE.CsvProcessor
                         saveAction.Invoke(memoryStream, ".csv");
                     }
                 }
-                return true;
+                return default;
             }
             catch (Exception ex)
             {
+                //log
                 throw ex;
             }
         }

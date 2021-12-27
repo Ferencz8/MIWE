@@ -48,6 +48,7 @@ namespace MIWE.Core
 
         public async Task<Guid> Add(Job job)
         {
+            job.DateAdded = DateTime.UtcNow;
             var addedEntity = await _jobRepository.Create(job);
             return addedEntity.Id;
         }
@@ -200,7 +201,7 @@ namespace MIWE.Core
 
                     stream.Seek(0, SeekOrigin.Begin);
 
-                    azurePath = await _azureBlobRepository.UploadAsync(file.FileName, stream);// save to azure also
+                    azurePath = await _azureBlobRepository.UploadPluginAsync(file.FileName, stream);// save to azure also
                 }
 
                 //string finalPath = path;

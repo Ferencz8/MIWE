@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MIWE.Core.Models;
+using System.Threading.Tasks;
 
 namespace MIWE.Core
 {
@@ -85,7 +86,7 @@ namespace MIWE.Core
             return crawlPath;
         }
 
-        public bool Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken)
+        public async Task<bool> Run(PluginRunningParameters pluginRunningParameters, CancellationToken? cancellationToken)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace MIWE.Core
                 {
                     var productsData = crawlPlugin.GetData();
                     IProcess processPlugin = CreateInstanceOfPlugin<IProcess>(pluginRunningParameters.ProcessorPluginPath);
-                    result = processPlugin.ProcessData(pluginRunningParameters.MerchantName, productsData, pluginRunningParameters.ProcessorSaveAction);
+                    result = await processPlugin.ProcessData(pluginRunningParameters.MerchantName, productsData, pluginRunningParameters.ProcessorSaveAction);
                 }
 
                 return result;

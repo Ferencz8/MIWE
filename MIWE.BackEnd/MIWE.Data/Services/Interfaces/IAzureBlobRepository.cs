@@ -10,7 +10,11 @@ namespace MIWE.Data.Services
     {
         Task<string> UploadAsync(string blobName, string filePath, bool overwrite = true);
 
-        Task<string> UploadAsync(string blobName, Stream content, bool overwrite = true);
+        Task<string> UploadAsync(string containerName, string blobName, Stream content, bool overwrite = true);
+
+        Task<string> UploadImageAsync(string blobName, Stream content, bool overwrite = true);
+
+        Task<string> UploadPluginAsync(string blobName, Stream content, bool overwrite = true);
 
         Task DownloadAsync(string blobName, string destinationPath);
     }
